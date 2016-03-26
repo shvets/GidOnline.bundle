@@ -36,7 +36,6 @@ def HandleTopSeven(title):
         title = genre['name']
         thumb = genre['thumb']
 
-        Log(path)
         key = Callback(HandleMovie, path=path, title=title, thumb=thumb)
 
         oc.add(DirectoryObject(key=key, title=title, thumb=thumb))
@@ -162,7 +161,7 @@ def HandleContainer(path, title, thumb):
 
         for season in sorted(serial_info['seasons'].keys()):
             name = serial_info['seasons'][season]
-            key = Callback(HandleEpisodes, path=path, title=unicode(name), thumb=thumb, season=season)
+            key = Callback(HandleEpisodes, path=path, title=unicode(title + ': ' + name), thumb=thumb, season=season)
 
             oc.add(DirectoryObject(key=key, title=unicode(name)))
 
@@ -170,6 +169,23 @@ def HandleContainer(path, title, thumb):
 
     else:
         return HandleMovie(path=path, title=title, thumb=thumb)
+
+@route(common.PREFIX + '/episodes', container=bool)
+def HandleEpisodes(path, title, thumb, season, container=False):
+    document = service.get_movie_document(path)
+    serial_info = service.get_serial_info(document)
+
+    oc = ObjectContainer(title2=unicode(title))
+
+    for episode in sorted(serial_info['episodes'].keys()):
+        name = serial_info['episodes'][episode]
+
+        key = Callback(HandleMovie, path=path, title=unicode(title), thumb=thumb,
+                       season=season, episode=episode, container=container)
+
+        oc.add(DirectoryObject(key=key, title=unicode(name)))
+
+    return oc
 
 @route(common.PREFIX + '/movie', container=bool)
 def HandleMovie(path, title, thumb, season=None, episode=None, container=False):
@@ -216,23 +232,6 @@ def GetVideoObject(path, title, thumb, season, episode):
 
     return video
 
-@route(common.PREFIX + '/episodes', container=bool)
-def HandleEpisodes(path, title, thumb, season, container=False):
-    document = service.get_movie_document(path)
-    serial_info = service.get_serial_info(document)
-
-    oc = ObjectContainer(title2=unicode(title))
-
-    for episode in sorted(serial_info['episodes'].keys()):
-        name = serial_info['episodes'][episode]
-
-        key = Callback(HandleMovie, path=path, title=unicode(name), thumb=thumb,
-                       season=season, episode=episode, container=container)
-
-        oc.add(DirectoryObject(key=key, title=unicode(name)))
-
-    return oc
-
 @indirect
 @route(common.PREFIX + '/play_video')
 def PlayVideo(url, season=None, episode=None):
@@ -274,16 +273,16 @@ def Search(query=None, page=1):
 def HandleHistory(title):
     history = Data.LoadObject(common.KEY_HISTORY)
 
-    # if not history or not len(history):
-    #     return util.no_contents()
-
     oc = ObjectContainer(title2=unicode(title))
 
     if history:
         for item in sorted(history.values(), key=lambda k: k['time'], reverse=True):
+            new_item = item.copy()
+            del new_item['time']
+
             oc.add(DirectoryObject(
-                key=Callback(HandleMovie, **item),
-                title=unicode(title),
+                key=Callback(HandleMovie, **new_item),
+                title=unicode(item['title']),
                 thumb=item['thumb']
             ))
 
@@ -296,32 +295,27 @@ def HandleQueue(title):
     for item in service.queue.data:
         oc.add(DirectoryObject(
             key=Callback(HandleMovie, **item),
-            title=unicode(title),
+            title=unicode(item['title']),
             thumb=item['thumb']
         ))
 
     return oc
 
 def append_queue_controls(oc, media_info):
-    try:
-        bookmark = get_bookmark(media_info['path'])
+    bookmark = get_bookmark(media_info['path'])
 
-        if bookmark:
-            oc.add(DirectoryObject(
-                key=Callback(HandleRemoveBookmark, **media_info),
-                title=unicode(L('Remove Bookmark')),
-                thumb=R(common.REMOVE_ICON)
-            ))
-        else:
-            oc.add(DirectoryObject(
-                key=Callback(HandleAddBookmark, **media_info),
-                title=unicode(L('Add Bookmark')),
-                thumb=R(common.ADD_ICON)
-            ))
-    except Exception as e:
-      Log(e)
-
-
+    if bookmark:
+        oc.add(DirectoryObject(
+            key=Callback(HandleRemoveBookmark, **media_info),
+            title=unicode(L('Remove Bookmark')),
+            thumb=R(common.REMOVE_ICON)
+        ))
+    else:
+        oc.add(DirectoryObject(
+            key=Callback(HandleAddBookmark, **media_info),
+            title=unicode(L('Add Bookmark')),
+            thumb=R(common.ADD_ICON)
+        ))
 
 @route(common.PREFIX + '/add_bookmark')
 def HandleAddBookmark(**params):
@@ -346,8 +340,6 @@ def remove_bookmark(media_info):
     service.queue.save()
 
 def get_bookmark(path):
-    Log(service.queue.data)
-
     found = None
 
     for item in service.queue.data:
