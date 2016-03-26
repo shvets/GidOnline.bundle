@@ -1,0 +1,12 @@
+[
+    {
+        "id": "language",
+        "type": "enum",
+        "label": "Your Language",
+        "default": "Russian/ru",
+        "values": [
+            "English/en",
+            "Russian/ru"
+        ]
+    }
+]

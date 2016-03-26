@@ -1,0 +1,23 @@
+{
+  "Title": "ГидОнлайн",
+  "Movies": "Все Фильмы",
+  "Top Seven": "Топ Семерка",
+  "New Movies": "Новинки",
+  "Premiers": "Премьеры",
+  "Genres": "Фильмы по Жанрам",
+  "Actors": "Фильмы по Актерам",
+  "Directors": "Фильмы по Режиссеам",
+  "Countries": "Фильмы по Странам",
+  "Years": "Фильмы по Годы",
+  "Letter": "Буква",
+  "Bookmarks": "Очередь",
+  "History": "История",
+  "Seasons": "Сезоны",
+  "Search": "Поиск",
+  "Search on GidOnline": "Поиск на ГидОнлайн",
+
+  "Add Bookmark": "Добавить в очередь",
+  "Remove Bookmark": "Удалить из очереди",
+  "Bookmark Added": "Элемент добавлен.",
+  "Bookmark Removed": "Элемент удален."
+}
