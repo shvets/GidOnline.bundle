@@ -8,6 +8,8 @@ def push_to_history(item):
         'path': item['path'],
         'title': item['title'],
         'thumb': item['thumb'],
+        'season': item['season'],
+        'episode': item['episode'],
         'time': Datetime.TimestampFromDatetime(Datetime.Now()),
     }
 

@@ -172,27 +172,26 @@ def HandleContainer(path, title, thumb):
         return HandleMovie(path=path, title=title, thumb=thumb)
 
 @route(common.PREFIX + '/movie', container=bool)
-def HandleMovie(path, title, thumb, season=None, episode=None, container=False, **params):
+def HandleMovie(path, title, thumb, season=None, episode=None, container=False):
     oc = ObjectContainer(title2=unicode(title))
 
-    history.push_to_history({
+    media_info = {
         "path": path,
         "title": title,
         "thumb": thumb,
         "season": season,
         "episode": episode
-    })
+    }
 
-    oc.add(GetVideoObject(path=path, title=title, thumb=thumb, season=season, episode=episode, container=container, **params))
+    oc.add(GetVideoObject(path=path, title=title, thumb=thumb, season=season, episode=episode))
 
-    # if str(container) == 'False':
-    #     bookmarks.append_controls(oc, id=id, name=title, thumb=thumb, rating_key='rating_key')
-    #                               # description=description, duration=duration, year=year, on_air=on_air, files=files,
-    #                               # container=container)
+    if str(container) == 'False':
+        history.push_to_history(media_info)
+        append_queue_controls(oc, media_info)
 
     return oc
 
-def GetVideoObject(path, title, thumb, season, episode, container, **params):
+def GetVideoObject(path, title, thumb, season, episode):
     video = MovieObject(title=unicode(title))
 
     data = service.get_media_data(path)
@@ -207,7 +206,7 @@ def GetVideoObject(path, title, thumb, season, episode, container, **params):
     # video.originally_available_at = originally_available_at(on_air)
 
     video.key = Callback(HandleMovie, path=path, title=title, thumb=thumb,
-                         season=season, episode=episode, container=container)
+                         season=season, episode=episode, container=True)
 
     video.items = []
 
@@ -275,30 +274,86 @@ def Search(query=None, page=1):
 def HandleHistory(title):
     history = Data.LoadObject(common.KEY_HISTORY)
 
-    if not history or not len(history):
-        return util.no_contents()
+    # if not history or not len(history):
+    #     return util.no_contents()
 
     oc = ObjectContainer(title2=unicode(title))
 
-    for item in sorted(history.values(), key=lambda k: k['time'], reverse=True):
-        path = item['path']
-        title = item['title']
-        thumb = item['thumb']
+    if history:
+        for item in sorted(history.values(), key=lambda k: k['time'], reverse=True):
+            oc.add(DirectoryObject(
+                key=Callback(HandleMovie, **item),
+                title=unicode(title),
+                thumb=item['thumb']
+            ))
 
-        if 'season' in item:
-            season = item['season']
-        else:
-            season = None
+    return oc
 
-        if 'episode' in item:
-            episode = item['episode']
-        else:
-            episode = None
+@route(common.PREFIX + '/queue')
+def HandleQueue(title):
+    oc = ObjectContainer(title2=unicode(title))
 
+    for item in service.queue.data:
         oc.add(DirectoryObject(
-            key=Callback(HandleMovie, path=path, title=unicode(title), thumb=thumb, season=season, episode=episode),
+            key=Callback(HandleMovie, **item),
             title=unicode(title),
-            thumb=thumb
+            thumb=item['thumb']
         ))
 
     return oc
+
+def append_queue_controls(oc, media_info):
+    try:
+        bookmark = get_bookmark(media_info['path'])
+
+        if bookmark:
+            oc.add(DirectoryObject(
+                key=Callback(HandleRemoveBookmark, **media_info),
+                title=unicode(L('Remove Bookmark')),
+                thumb=R(common.REMOVE_ICON)
+            ))
+        else:
+            oc.add(DirectoryObject(
+                key=Callback(HandleAddBookmark, **media_info),
+                title=unicode(L('Add Bookmark')),
+                thumb=R(common.ADD_ICON)
+            ))
+    except Exception as e:
+      Log(e)
+
+
+
+@route(common.PREFIX + '/add_bookmark')
+def HandleAddBookmark(**params):
+    add_bookmark(params)
+
+    return ObjectContainer(header=unicode(L(params['title'])), message=unicode(L('Bookmark Added')))
+
+@route(common.PREFIX + '/remove_bookmark')
+def HandleRemoveBookmark(**params):
+    remove_bookmark(params)
+
+    return ObjectContainer(header=unicode(L(params['title'])), message=unicode(L('Bookmark Removed')))
+
+def add_bookmark(media_info):
+    service.queue.add(media_info)
+
+    service.queue.save()
+
+def remove_bookmark(media_info):
+    service.queue.remove(media_info)
+
+    service.queue.save()
+
+def get_bookmark(path):
+    Log(service.queue.data)
+
+    found = None
+
+    for item in service.queue.data:
+        if 'path' in item:
+            if item['path'] == path:
+                found = item
+                break
+
+    return found
