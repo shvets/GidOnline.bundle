@@ -44,7 +44,7 @@ class GidOnlineService(MwService):
         response = self.http_request(self.URL)
         document = self.to_document(response.read())
 
-        all_actors = self.fix_name(self.get_dropdown('actors-dropdown', document))
+        all_actors = self.fix_name(self.get_category('actors-dropdown', document))
 
         all_actors = sorted(all_actors, key=operator.itemgetter("name"))
 
@@ -59,7 +59,7 @@ class GidOnlineService(MwService):
         response = self.http_request(self.URL)
         document = self.to_document(response.read())
 
-        all_directors = self.fix_name(self.get_dropdown('director-dropdown', document))
+        all_directors = self.fix_name(self.get_category('director-dropdown', document))
 
         all_directors = sorted(all_directors, key=operator.itemgetter("name"))
 
@@ -74,21 +74,21 @@ class GidOnlineService(MwService):
         response = self.http_request(self.URL)
         document = self.to_document(response.read())
 
-        return self.fix_path(self.get_dropdown('country-dropdown', document))
+        return self.fix_path(self.get_category('country-dropdown', document))
 
     def get_years(self):
         response = self.http_request(self.URL)
         document = self.to_document(response.read())
 
-        return self.fix_path(self.get_dropdown('year-dropdown', document))
+        return self.fix_path(self.get_category('year-dropdown', document))
 
     def get_seasons(self, path):
-        return self.get_dropdown('season', self.get_movie_document(self.URL + path))
+        return self.get_category('season', self.get_movie_document(self.URL + path))
 
     def get_episodes(self, path):
-        return self.get_dropdown('episode', self.get_movie_document(self.URL + path))
+        return self.get_category('episode', self.get_movie_document(self.URL + path))
 
-    def get_dropdown(self, id, document):
+    def get_category(self, id, document):
         list = []
 
         links = document.xpath('//select[@id="' + id + '"]/option')
@@ -102,7 +102,7 @@ class GidOnlineService(MwService):
 
         return list
 
-    def parse_movies_page(self, path=None, page=1):
+    def get_movies(self, path=None, page=1):
         url = self.URL
 
         if path:
@@ -194,7 +194,7 @@ class GidOnlineService(MwService):
 
         return list
 
-    def get_iframe_url(self, url):
+    def get_gateway_url(self, url):
         response = self.http_request(url)
         document = self.to_document(response.read())
 
@@ -205,7 +205,7 @@ class GidOnlineService(MwService):
         return urls[0]
 
     def get_movie_document(self, url, season=None, episode=None):
-        iframe_url = self.get_iframe_url(url)
+        iframe_url = self.get_gateway_url(url)
 
         new_url = iframe_url
 
@@ -290,7 +290,7 @@ class GidOnlineService(MwService):
         else:
             path = "/?" + params
 
-        return self.parse_movies_page(path)
+        return self.get_movies(path)
 
     def convert_duration(self, s):
         tokens = s.split(' ')

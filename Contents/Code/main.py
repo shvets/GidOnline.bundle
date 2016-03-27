@@ -2,9 +2,11 @@
 
 import common
 import util
-import flow_builder
+from flow_builder import FlowBuilder
 import pagination
 import history
+
+builder = FlowBuilder()
 
 CYRILLIC_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С',
                     'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я']
@@ -13,7 +15,7 @@ CYRILLIC_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 
 def HandleMovies(title, path=None, page=1):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
-    response = service.parse_movies_page(path, page)
+    response = service.get_movies(path, page)
 
     for movie in response['movies']:
         name = movie['name']
@@ -172,7 +174,7 @@ def HandleContainer(path, title, thumb):
 
 @route(common.PREFIX + '/episodes', container=bool)
 def HandleEpisodes(path, title, thumb, season, container=False):
-    document = service.get_movie_document(path)
+    document = service.get_movie_document(path, season, 1)
     serial_info = service.get_serial_info(document)
 
     oc = ObjectContainer(title2=unicode(title))
@@ -180,7 +182,7 @@ def HandleEpisodes(path, title, thumb, season, container=False):
     for episode in sorted(serial_info['episodes'].keys()):
         name = serial_info['episodes'][episode]
 
-        key = Callback(HandleMovie, path=path, title=unicode(title), thumb=thumb,
+        key = Callback(HandleMovie, path=path, title=unicode(name), thumb=thumb,
                        season=season, episode=episode, container=container)
 
         oc.add(DirectoryObject(key=key, title=unicode(name)))
@@ -188,7 +190,7 @@ def HandleEpisodes(path, title, thumb, season, container=False):
     return oc
 
 @route(common.PREFIX + '/movie', container=bool)
-def HandleMovie(path, title, thumb, season=None, episode=None, container=False):
+def HandleMovie(path, title, thumb, season=None, episode=None, container=False, **params):
     oc = ObjectContainer(title2=unicode(title))
 
     media_info = {
@@ -203,7 +205,10 @@ def HandleMovie(path, title, thumb, season=None, episode=None, container=False):
 
     if str(container) == 'False':
         history.push_to_history(media_info)
-        append_queue_controls(oc, media_info)
+        service.queue.append_queue_controls(oc, media_info,
+            add_bookmark_handler=HandleAddBookmark,
+            remove_bookmark_handler = HandleRemoveBookmark
+        )
 
     return oc
 
@@ -228,7 +233,7 @@ def GetVideoObject(path, title, thumb, season, episode):
 
     play_callback = Callback(PlayVideo, url=path, season=season, episode=episode)
 
-    video.items.extend(flow_builder.build_media_objects(play_callback))
+    video.items.extend(builder.build_media_objects(play_callback))
 
     return video
 
@@ -301,51 +306,14 @@ def HandleQueue(title):
 
     return oc
 
-def append_queue_controls(oc, media_info):
-    bookmark = get_bookmark(media_info['path'])
-
-    if bookmark:
-        oc.add(DirectoryObject(
-            key=Callback(HandleRemoveBookmark, **media_info),
-            title=unicode(L('Remove Bookmark')),
-            thumb=R(common.REMOVE_ICON)
-        ))
-    else:
-        oc.add(DirectoryObject(
-            key=Callback(HandleAddBookmark, **media_info),
-            title=unicode(L('Add Bookmark')),
-            thumb=R(common.ADD_ICON)
-        ))
-
 @route(common.PREFIX + '/add_bookmark')
 def HandleAddBookmark(**params):
-    add_bookmark(params)
+    service.queue.add_bookmark(params)
 
     return ObjectContainer(header=unicode(L(params['title'])), message=unicode(L('Bookmark Added')))
 
 @route(common.PREFIX + '/remove_bookmark')
 def HandleRemoveBookmark(**params):
-    remove_bookmark(params)
+    service.queue.remove_bookmark(params)
 
     return ObjectContainer(header=unicode(L(params['title'])), message=unicode(L('Bookmark Removed')))
-
-def add_bookmark(media_info):
-    service.queue.add(media_info)
-
-    service.queue.save()
-
-def remove_bookmark(media_info):
-    service.queue.remove(media_info)
-
-    service.queue.save()
-
-def get_bookmark(path):
-    found = None
-
-    for item in service.queue.data:
-        if 'path' in item:
-            if item['path'] == path:
-                found = item
-                break
-
-    return found

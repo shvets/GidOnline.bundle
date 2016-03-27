@@ -64,17 +64,17 @@ class GidOnlineServiceTest(unittest.TestCase):
         print(json.dumps(result, indent=4))
 
     def test_parse_movies_page(self):
-        result = self.service.parse_movies_page()
+        result = self.service.get_movies()
 
         print(json.dumps(result, indent=4))
 
     def test_get_movies_on_genre_page(self):
-        result = self.service.parse_movies_page('/genre/vestern/')
+        result = self.service.get_movies('/genre/vestern/')
 
         print(json.dumps(result, indent=4))
 
     def test_retrieve_movie_url(self):
-        movies = self.service.parse_movies_page()['movies']
+        movies = self.service.get_movies()['movies']
 
         movie_url = movies[1]['path']
 
@@ -98,7 +98,7 @@ class GidOnlineServiceTest(unittest.TestCase):
         print(json.dumps(serial_info, indent=4))
 
     def test_get_play_list(self):
-        movies = self.service.parse_movies_page()['movies']
+        movies = self.service.get_movies()['movies']
 
         movie_url = movies[0]['path']
 
@@ -109,7 +109,7 @@ class GidOnlineServiceTest(unittest.TestCase):
         print(play_list)
 
     def test_get_media_data(self):
-        movies = self.service.parse_movies_page()['movies']
+        movies = self.service.get_movies()['movies']
 
         movie_url = movies[0]['path']
 
