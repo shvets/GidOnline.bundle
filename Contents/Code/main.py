@@ -90,7 +90,9 @@ def HandleActors(title):
 def HandleActorsLetter(title, letter):
     oc = ObjectContainer(title2=unicode(title))
 
-    for item in service.get_actors(letter=letter):
+    document = service.fetch_document(service.URL)
+
+    for item in service.get_actors(document=document, letter=letter):
         path = item['path']
         title = item['name']
 
@@ -118,7 +120,9 @@ def HandleDirectors(title):
 def HandleDirectorsLetter(title, letter):
     oc = ObjectContainer(title2=unicode(title))
 
-    for item in service.get_directors(letter):
+    document = service.fetch_document(service.URL)
+
+    for item in service.get_directors(document=document, letter=letter):
         path = item['path']
         title = item['name']
 
@@ -132,7 +136,9 @@ def HandleDirectorsLetter(title, letter):
 def HandleCountries(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
-    for item in service.get_countries():
+    document = service.fetch_document(service.URL)
+
+    for item in service.get_countries(document):
         path = item['path']
         title = item['name']
 
@@ -146,7 +152,9 @@ def HandleCountries(title):
 def HandleYears(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
-    for item in service.get_years():
+    document = service.fetch_document(service.URL)
+
+    for item in service.get_years(document):
         path = item['path']
         title = item['name']
 
@@ -253,7 +261,7 @@ def GetVideoObject(path, title, name, thumb, season, episode):
 
     document = service.fetch_document(path)
 
-    data = service.get_media_data(path)
+    data = service.get_media_data(document)
 
     video.rating_key = 'rating_key'
     video.rating = data['rating']
