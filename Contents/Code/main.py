@@ -163,7 +163,10 @@ def HandleContainer(path, title, name, thumb):
 
         for season in sorted(serial_info['seasons'].keys()):
             season_name = serial_info['seasons'][season]
-            key = Callback(HandleEpisodes, path=path, title=unicode(name), name=season_name, thumb=thumb, season=season)
+            key = Callback(HandleEpisodes, path=path,
+                           title=unicode(name),
+                           name=season_name,
+                           thumb=thumb, season=season)
 
             oc.add(DirectoryObject(key=key, title=unicode(season_name)))
 
@@ -193,7 +196,10 @@ def HandleEpisodes(path, title, name, thumb, season, container=False):
     for episode in sorted(serial_info['episodes'].keys()):
         episode_name = serial_info['episodes'][episode]
 
-        key = Callback(HandleMovie, path=path, title=unicode(title + ': ' + name + ': ' + episode_name), name=title + ': ' + name, thumb=thumb,
+        key = Callback(HandleMovie, path=path,
+                       title=unicode(title + ': ' + name + ': ' + episode_name),
+                       name=title + ': ' + name,
+                       thumb=thumb,
                        season=season, episode=episode, container=container)
 
         oc.add(DirectoryObject(key=key, title=unicode(episode_name)))
