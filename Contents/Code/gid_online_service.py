@@ -1,4 +1,5 @@
 import urllib
+import urlparse
 import re
 import operator
 
@@ -7,13 +8,21 @@ from mw_service import MwService
 class GidOnlineService(MwService):
     URL = "http://gidonline.club"
 
-    def get_genres(self):
-        response = self.http_request(self.URL)
-        document = self.to_document(response.read())
+    def get_page_url(self, path, page=1):
+        url = self.URL
 
+        if path:
+            url = url + path
+
+        if page > 1:
+            url = url + "/page/" + str(page) + '/'
+
+        return url
+
+    def get_genres(self):
         list = []
 
-        links = document.xpath('//div[@id="catline"]//li/a')
+        links = self.fetch_document(self.URL).xpath('//div[@id="catline"]//li/a')
 
         for link in links:
             path = link.xpath('@href')[0]
@@ -24,12 +33,9 @@ class GidOnlineService(MwService):
         return list
 
     def get_top_links(self):
-        response = self.http_request(self.URL)
-        document = self.to_document(response.read())
-
         list = []
 
-        links = document.xpath('//div[@id="topls"]/a[@class="toplink"]')
+        links = self.fetch_document(self.URL).xpath('//div[@id="topls"]/a[@class="toplink"]')
 
         for link in links:
             path = link.xpath('@href')[0]
@@ -40,10 +46,7 @@ class GidOnlineService(MwService):
 
         return list
 
-    def get_actors(self, letter=None):
-        response = self.http_request(self.URL)
-        document = self.to_document(response.read())
-
+    def get_actors(self, document, letter=None):
         all_list = self.fix_name(self.get_category('actors-dropdown', document))
 
         all_list = sorted(all_list, key=operator.itemgetter("name"))
@@ -55,10 +58,7 @@ class GidOnlineService(MwService):
 
         return self.fix_path(list)
 
-    def get_directors(self, letter=None):
-        response = self.http_request(self.URL)
-        document = self.to_document(response.read())
-
+    def get_directors(self, document, letter=None):
         all_list = self.fix_name(self.get_category('director-dropdown', document))
 
         all_list = sorted(all_list, key=operator.itemgetter("name"))
@@ -70,19 +70,11 @@ class GidOnlineService(MwService):
 
         return self.fix_path(list)
 
-    def get_countries(self):
-        response = self.http_request(self.URL)
-        document = self.to_document(response.read())
-
+    def get_countries(self, document):
         return self.fix_path(self.get_category('country-dropdown', document))
 
-    def get_years(self):
-        response = self.http_request(self.URL)
-        document = self.to_document(response.read())
-
+    def get_years(self, document):
         return self.fix_path(self.get_category('year-dropdown', document))
-
-    # def get_all_categories(self):
 
     def get_seasons(self, path):
         return self.get_category('season', self.get_movie_document(self.URL + path))
@@ -104,18 +96,7 @@ class GidOnlineService(MwService):
 
         return list
 
-    def get_movies(self, path=None, page=1):
-        url = self.URL
-
-        if path:
-            url = url + path
-
-        if page > 1:
-            url = url + "/page/" + str(page) + '/'
-
-        response = self.http_request(url).read()
-        document = self.to_document(response)
-
+    def get_movies(self, document, path):
         result = {'movies': []}
 
         links = document.xpath('//div[@id="main"]/div[@id="posts"]/a[@class="mainlink"]')
@@ -182,11 +163,9 @@ class GidOnlineService(MwService):
         return int(data.group(2))
 
     def get_movie_details(self, url):
-        response = self.http_request(url).read()
-
         list = []
 
-        links = self.to_document(response).xpath('//div[@id="main"]/div[@id="face"]//div[@class="t-row"]//div[@class="rl-1"]')
+        links = self.fetch_document(url).xpath('//div[@id="main"]/div[@id="face"]//div[@class="t-row"]//div[@class="rl-1"]')
 
         for link in links:
             details = {}
@@ -197,10 +176,7 @@ class GidOnlineService(MwService):
         return list
 
     def get_gateway_url(self, url):
-        response = self.http_request(url)
-        document = self.to_document(response.read())
-
-        frame_block = document.xpath('//div[@class="tray"]')[0]
+        frame_block = self.fetch_document(url).xpath('//div[@class="tray"]')[0]
 
         urls = frame_block.xpath('iframe[@class="ifram"]/@src')
 
@@ -214,9 +190,7 @@ class GidOnlineService(MwService):
         if season:
             new_url = '%s?season=%d&episode=%d' % (iframe_url, int(season), int(episode))
 
-        response = self.http_request(new_url)
-
-        return self.to_document(response.read())
+        return self.fetch_document(new_url)
 
     def retrieve_url(self, url, season=None, episode=None):
         document = self.get_movie_document(url, season=season, episode=episode)
@@ -236,8 +210,7 @@ class GidOnlineService(MwService):
     def get_media_data(self, path):
         data = {}
 
-        response = self.http_request(path)
-        document = self.to_document(response.read())
+        document = self.fetch_document(path)
 
         block = document.xpath('//div[@id="face"]')[0]
 
@@ -283,28 +256,32 @@ class GidOnlineService(MwService):
         return ret
 
     def search(self, query, page=1):
-        params = urllib.urlencode({
-            's': query
-        })
+        # params = urllib.urlencode({
+        #     's': query
+        # })
 
-        if page > 1:
-            path = "/page/" + str(page) + "/?" + params
-        else:
-            path = "/?" + params
+        # if page > 1:
+        #     path = "/page/" + str(page) + "/?" + params
+        # else:
+        #     path = "/?" + params
 
-        return self.get_movies(path)
+        url = self.build_url(self.get_page_url(None, page), s=query)
 
-    def search_actors(self, query):
-        return self.search_in_list(self.get_actors(), query)
+        document = self.fetch_document(url)
 
-    def search_directors(self, query):
-        return self.search_in_list(self.get_directors(), query)
+        return self.get_movies(document, urlparse.urlparse(url).path)
 
-    def search_countries(self, query):
-        return self.search_in_list(self.get_countries(), query)
+    def search_actors(self, document, query):
+        return self.search_in_list(self.get_actors(document), query)
 
-    def search_years(self, query):
-        return self.search_in_list(self.get_years(), query)
+    def search_directors(self, document, query):
+        return self.search_in_list(self.get_directors(document), query)
+
+    def search_countries(self, document, query):
+        return self.search_in_list(self.get_countries(document), query)
+
+    def search_years(self, document, query):
+        return self.search_in_list(self.get_years(document), query)
 
     def search_in_list(self, list, query):
         new_list = []

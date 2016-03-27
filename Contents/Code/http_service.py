@@ -59,6 +59,11 @@ class HttpService():
 
         return "\n".join(new_lines)
 
+    def fetch_document(self, url):
+        response = self.http_request(url)
+
+        return self.to_document(response.read())
+
     def to_document(self, buffer):
         return html.fromstring(buffer)
 

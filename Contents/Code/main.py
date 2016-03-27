@@ -15,7 +15,9 @@ CYRILLIC_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 
 def HandleMovies(title, path=None, page=1):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
-    response = service.get_movies(path, page)
+    document = service.fetch_document(service.get_page_url(path, page))
+
+    response = service.get_movies(document, path)
 
     for movie in response['movies']:
         name = movie['name']
@@ -78,17 +80,13 @@ def HandleActors(title):
             title=unicode(letter)
         ))
 
-    # oc.add(InputDirectoryObject(key=Callback(HandleSearchActors),
-    #                             title=unicode(L("Search Actors")),
-    #                             prompt=unicode(L("Search Actors")),
-    #                             thumb=R(common.SEARCH_ICON)))
     return oc
 
 @route(common.PREFIX + '/actors_letter')
 def HandleActorsLetter(title, letter):
     oc = ObjectContainer(title2=unicode(title))
 
-    for item in service.get_actors(letter):
+    for item in service.get_actors(letter=letter):
         path = item['path']
         title = item['name']
 
@@ -96,10 +94,6 @@ def HandleActorsLetter(title, letter):
 
         oc.add(DirectoryObject(key=key, title=title))
 
-    # oc.add(InputDirectoryObject(key=Callback(HandleSearchActors),
-    #                             title=unicode(L("Search Actors")),
-    #                             prompt=unicode(L("Search Actors")),
-    #                             thumb=R(common.SEARCH_ICON)))
     return oc
 
 @route(common.PREFIX + '/directors')
@@ -114,10 +108,6 @@ def HandleDirectors(title):
             title=unicode(letter)
         ))
 
-    # oc.add(InputDirectoryObject(key=Callback(HandleSearchDirectors),
-    #                             title=unicode(L("Search Directors")),
-    #                             prompt=unicode(L("Search Directors")),
-    #                             thumb=R(common.SEARCH_ICON)))
     return oc
 
 @route(common.PREFIX + '/directors_letter')
@@ -132,10 +122,6 @@ def HandleDirectorsLetter(title, letter):
 
         oc.add(DirectoryObject(key=key, title=title))
 
-    # oc.add(InputDirectoryObject(key=Callback(HandleSearchDirectors),
-    #                             title=unicode(L("Search Directors")),
-    #                             prompt=unicode(L("Search Directors")),
-    #                             thumb=R(common.SEARCH_ICON)))
     return oc
 
 @route(common.PREFIX + '/countries')
@@ -150,10 +136,6 @@ def HandleCountries(title):
 
         oc.add(DirectoryObject(key=key, title=title))
 
-    # oc.add(InputDirectoryObject(key=Callback(HandleSearchCountries),
-    #                             title=unicode(L("Search Countries")),
-    #                             prompt=unicode(L("Search Countries")),
-    #                             thumb=R(common.SEARCH_ICON)))
     return oc
 
 @route(common.PREFIX + '/years')
@@ -307,43 +289,18 @@ def Playlist(url):
 def HandleSearch(query=None, page=1):
     oc = ObjectContainer(title2=unicode(L('Search')))
 
-    BuildSearchActors(oc, query)
-    BuildSearchDirectors(oc, query)
-    BuildSearchCountries(oc, query)
-    BuildSearchYears(oc, query)
-    BuildSearchMovies(oc, page, query)
+    document = service.fetch_document(service.URL)
 
-    # if len(oc) < 1:
-    #     return util.no_contents('Search')
+    BuildSearchActors(oc, document, query)
+    BuildSearchDirectors(oc, document, query)
+    BuildSearchCountries(oc, document, query)
+    BuildSearchYears(oc, document, query)
+    BuildSearchMovies(oc, page, query)
 
     return oc
 
-# @route(common.PREFIX + '/search_actors')
-# def HandleSearchActors(query=None):
-#     oc = ObjectContainer(title2=unicode(L('Search Actors')))
-#
-#     BuildSearchActors(oc, query)
-#
-#     return oc
-#
-# @route(common.PREFIX + '/search_directors')
-# def HandleSearchDirectors(query=None):
-#     oc = ObjectContainer(title2=unicode(L('Search Directors')))
-#
-#     BuildSearchDirectors(oc, query)
-#
-#     return oc
-#
-# @route(common.PREFIX + '/search_countries')
-# def HandleSearchCountries(query=None):
-#     oc = ObjectContainer(title2=unicode(L('Search Countries')))
-#
-#     BuildSearchCountries(oc, query)
-#
-#     return oc
-
-def BuildSearchActors(oc, query):
-    response = service.search_actors(query=query)
+def BuildSearchActors(oc, document, query):
+    response = service.search_actors(document=document, query=query)
 
     for item in response:
         path = item['path']
@@ -353,8 +310,8 @@ def BuildSearchActors(oc, query):
 
         oc.add(DirectoryObject(key=key, title=title))
 
-def BuildSearchDirectors(oc, query):
-    response = service.search_directors(query=query)
+def BuildSearchDirectors(oc, document, query):
+    response = service.search_directors(document=document, query=query)
 
     for item in response:
         path = item['path']
@@ -364,8 +321,8 @@ def BuildSearchDirectors(oc, query):
 
         oc.add(DirectoryObject(key=key, title=title))
 
-def BuildSearchCountries(oc, query):
-    response = service.search_countries(query=query)
+def BuildSearchCountries(oc, document, query):
+    response = service.search_countries(document=document, query=query)
 
     for item in response:
         path = item['path']
@@ -375,8 +332,8 @@ def BuildSearchCountries(oc, query):
 
         oc.add(DirectoryObject(key=key, title=title))
 
-def BuildSearchYears(oc, query):
-    response = service.search_years(query=query)
+def BuildSearchYears(oc, document, query):
+    response = service.search_years(document=document, query=query)
 
     for item in response:
         path = item['path']
