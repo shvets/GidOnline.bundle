@@ -31,11 +31,29 @@ def HandleMovies(title, path=None, page=1):
 
     return oc
 
+@route(common.PREFIX + '/genres')
+def HandleGenres(title):
+    oc = ObjectContainer(title2=unicode(title))
+
+    document = service.fetch_document(service.URL)
+
+    for genre in service.get_genres(document):
+        path = genre['path']
+        title = genre['name']
+
+        key = Callback(HandleMovies, path=path, title=title)
+
+        oc.add(DirectoryObject(key=key, title=title))
+
+    return oc
+
 @route(common.PREFIX + '/top_seven')
 def HandleTopSeven(title):
     oc = ObjectContainer(title2=unicode(title))
 
-    for genre in service.get_top_links():
+    document = service.fetch_document(service.URL)
+
+    for genre in service.get_top_links(document):
         path = genre['path']
         title = genre['name']
         thumb = genre['thumb']
@@ -43,20 +61,6 @@ def HandleTopSeven(title):
         key = Callback(HandleMovie, path=path, title=title, name=title, thumb=thumb)
 
         oc.add(DirectoryObject(key=key, title=title, thumb=thumb))
-
-    return oc
-
-@route(common.PREFIX + '/genres')
-def HandleGenres(title):
-    oc = ObjectContainer(title2=unicode(title))
-
-    for genre in service.get_genres():
-        path = genre['path']
-        title = genre['name']
-
-        key = Callback(HandleMovies, path=path, title=title)
-
-        oc.add(DirectoryObject(key=key, title=title))
 
     return oc
 
@@ -246,6 +250,8 @@ def HandleMovie(path, title, name, thumb, season=None, episode=None, container=F
 
 def GetVideoObject(path, title, name, thumb, season, episode):
     video = MovieObject(title=unicode(title))
+
+    document = service.fetch_document(path)
 
     data = service.get_media_data(path)
 

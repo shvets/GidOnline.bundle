@@ -1,4 +1,3 @@
-import urllib
 import urlparse
 import re
 import operator
@@ -19,10 +18,10 @@ class GidOnlineService(MwService):
 
         return url
 
-    def get_genres(self):
+    def get_genres(self, document):
         list = []
 
-        links = self.fetch_document(self.URL).xpath('//div[@id="catline"]//li/a')
+        links = document.xpath('//div[@id="catline"]//li/a')
 
         for link in links:
             path = link.xpath('@href')[0]
@@ -32,10 +31,10 @@ class GidOnlineService(MwService):
 
         return list
 
-    def get_top_links(self):
+    def get_top_links(self, document):
         list = []
 
-        links = self.fetch_document(self.URL).xpath('//div[@id="topls"]/a[@class="toplink"]')
+        links = document.xpath('//div[@id="topls"]/a[@class="toplink"]')
 
         for link in links:
             path = link.xpath('@href')[0]
@@ -96,7 +95,7 @@ class GidOnlineService(MwService):
 
         return list
 
-    def get_movies(self, document, path):
+    def get_movies(self, document, path=None):
         result = {'movies': []}
 
         links = document.xpath('//div[@id="main"]/div[@id="posts"]/a[@class="mainlink"]')
@@ -162,35 +161,25 @@ class GidOnlineService(MwService):
 
         return int(data.group(2))
 
-    def get_movie_details(self, url):
-        list = []
+    # def get_movie_details(self, document):
+    #     list = []
+    #
+    #     links = document.xpath('//div[@id="main"]/div[@id="face"]//div[@class="t-row"]//div[@class="rl-1"]')
+    #
+    #     for link in links:
+    #         details = {}
+    #         details['text'] = link.xpath("text()")
+    #
+    #         list.append(details)
+    #
+    #     return list
 
-        links = self.fetch_document(url).xpath('//div[@id="main"]/div[@id="face"]//div[@class="t-row"]//div[@class="rl-1"]')
-
-        for link in links:
-            details = {}
-            details['text'] = link.xpath("text()")
-
-            list.append(details)
-
-        return list
-
-    def get_gateway_url(self, url):
-        frame_block = self.fetch_document(url).xpath('//div[@class="tray"]')[0]
+    def get_gateway_url(self, document):
+        frame_block = document.xpath('//div[@class="tray"]')[0]
 
         urls = frame_block.xpath('iframe[@class="ifram"]/@src')
 
         return urls[0]
-
-    def get_movie_document(self, url, season=None, episode=None):
-        iframe_url = self.get_gateway_url(url)
-
-        new_url = iframe_url
-
-        if season:
-            new_url = '%s?season=%d&episode=%d' % (iframe_url, int(season), int(episode))
-
-        return self.fetch_document(new_url)
 
     def retrieve_url(self, url, season=None, episode=None):
         document = self.get_movie_document(url, season=season, episode=episode)
@@ -207,10 +196,18 @@ class GidOnlineService(MwService):
 
         return self.get_url(headers, data)
 
-    def get_media_data(self, path):
-        data = {}
+    def get_movie_document(self, url, season=None, episode=None):
+        gateway_url = self.get_gateway_url(self.fetch_document(url))
 
-        document = self.fetch_document(path)
+        if season:
+            movie_url = '%s?season=%d&episode=%d' % (gateway_url, int(season), int(episode))
+        else:
+            movie_url = gateway_url
+
+        return self.fetch_document(movie_url)
+
+    def get_media_data(self, document):
+        data = {}
 
         block = document.xpath('//div[@id="face"]')[0]
 
@@ -256,15 +253,6 @@ class GidOnlineService(MwService):
         return ret
 
     def search(self, query, page=1):
-        # params = urllib.urlencode({
-        #     's': query
-        # })
-
-        # if page > 1:
-        #     path = "/page/" + str(page) + "/?" + params
-        # else:
-        #     path = "/?" + params
-
         url = self.build_url(self.get_page_url(None, page), s=query)
 
         document = self.fetch_document(url)
