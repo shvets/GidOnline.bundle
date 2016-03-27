@@ -148,5 +148,19 @@ class GidOnlineServiceTest(unittest.TestCase):
 
         print(json.dumps(result, indent=4))
 
+    def test_search_actors(self):
+        query = 'Аллен'
+
+        result = self.service.search_actors(query)
+
+        print(json.dumps(result, indent=4))
+
+    def test_search_director(self):
+        query = 'Люк'
+
+        result = self.service.search_directors(query)
+
+        print(json.dumps(result, indent=4))
+
 if __name__ == '__main__':
     unittest.main()

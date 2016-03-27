@@ -78,6 +78,10 @@ def HandleActors(title):
             title=unicode(letter)
         ))
 
+    # oc.add(InputDirectoryObject(key=Callback(HandleSearchActors),
+    #                             title=unicode(L("Search Actors")),
+    #                             prompt=unicode(L("Search Actors")),
+    #                             thumb=R(common.SEARCH_ICON)))
     return oc
 
 @route(common.PREFIX + '/actors_letter')
@@ -92,6 +96,10 @@ def HandleActorsLetter(title, letter):
 
         oc.add(DirectoryObject(key=key, title=title))
 
+    # oc.add(InputDirectoryObject(key=Callback(HandleSearchActors),
+    #                             title=unicode(L("Search Actors")),
+    #                             prompt=unicode(L("Search Actors")),
+    #                             thumb=R(common.SEARCH_ICON)))
     return oc
 
 @route(common.PREFIX + '/directors')
@@ -106,6 +114,10 @@ def HandleDirectors(title):
             title=unicode(letter)
         ))
 
+    # oc.add(InputDirectoryObject(key=Callback(HandleSearchDirectors),
+    #                             title=unicode(L("Search Directors")),
+    #                             prompt=unicode(L("Search Directors")),
+    #                             thumb=R(common.SEARCH_ICON)))
     return oc
 
 @route(common.PREFIX + '/directors_letter')
@@ -120,6 +132,10 @@ def HandleDirectorsLetter(title, letter):
 
         oc.add(DirectoryObject(key=key, title=title))
 
+    # oc.add(InputDirectoryObject(key=Callback(HandleSearchDirectors),
+    #                             title=unicode(L("Search Directors")),
+    #                             prompt=unicode(L("Search Directors")),
+    #                             thumb=R(common.SEARCH_ICON)))
     return oc
 
 @route(common.PREFIX + '/countries')
@@ -134,6 +150,10 @@ def HandleCountries(title):
 
         oc.add(DirectoryObject(key=key, title=title))
 
+    # oc.add(InputDirectoryObject(key=Callback(HandleSearchCountries),
+    #                             title=unicode(L("Search Countries")),
+    #                             prompt=unicode(L("Search Countries")),
+    #                             thumb=R(common.SEARCH_ICON)))
     return oc
 
 @route(common.PREFIX + '/years')
@@ -284,9 +304,89 @@ def Playlist(url):
     return service.get_play_list(url)
 
 @route(common.PREFIX + '/search')
-def Search(query=None, page=1):
+def HandleSearch(query=None, page=1):
     oc = ObjectContainer(title2=unicode(L('Search')))
 
+    BuildSearchActors(oc, query)
+    BuildSearchDirectors(oc, query)
+    BuildSearchCountries(oc, query)
+    BuildSearchYears(oc, query)
+    BuildSearchMovies(oc, page, query)
+
+    # if len(oc) < 1:
+    #     return util.no_contents('Search')
+
+    return oc
+
+# @route(common.PREFIX + '/search_actors')
+# def HandleSearchActors(query=None):
+#     oc = ObjectContainer(title2=unicode(L('Search Actors')))
+#
+#     BuildSearchActors(oc, query)
+#
+#     return oc
+#
+# @route(common.PREFIX + '/search_directors')
+# def HandleSearchDirectors(query=None):
+#     oc = ObjectContainer(title2=unicode(L('Search Directors')))
+#
+#     BuildSearchDirectors(oc, query)
+#
+#     return oc
+#
+# @route(common.PREFIX + '/search_countries')
+# def HandleSearchCountries(query=None):
+#     oc = ObjectContainer(title2=unicode(L('Search Countries')))
+#
+#     BuildSearchCountries(oc, query)
+#
+#     return oc
+
+def BuildSearchActors(oc, query):
+    response = service.search_actors(query=query)
+
+    for item in response:
+        path = item['path']
+        title = item['name']
+
+        key = Callback(HandleMovies, path=path, title=title)
+
+        oc.add(DirectoryObject(key=key, title=title))
+
+def BuildSearchDirectors(oc, query):
+    response = service.search_directors(query=query)
+
+    for item in response:
+        path = item['path']
+        title = item['name']
+
+        key = Callback(HandleMovies, path=path, title=title)
+
+        oc.add(DirectoryObject(key=key, title=title))
+
+def BuildSearchCountries(oc, query):
+    response = service.search_countries(query=query)
+
+    for item in response:
+        path = item['path']
+        title = item['name']
+
+        key = Callback(HandleMovies, path=path, title=title)
+
+        oc.add(DirectoryObject(key=key, title=title))
+
+def BuildSearchYears(oc, query):
+    response = service.search_years(query=query)
+
+    for item in response:
+        path = item['path']
+        title = item['name']
+
+        key = Callback(HandleMovies, path=path, title=title)
+
+        oc.add(DirectoryObject(key=key, title=title))
+
+def BuildSearchMovies(oc, page, query):
     response = service.search(query=query, page=page)
 
     for movie in response['movies']:
@@ -297,12 +397,8 @@ def Search(query=None, page=1):
 
         oc.add(DirectoryObject(key=key, title=name, thumb=thumb))
 
-    pagination.append_controls(oc, response, page=page, callback=Search, query=query)
+    pagination.append_controls(oc, response, page=page, callback=HandleSearch, query=query)
 
-    if len(oc) < 1:
-        return util.no_contents('Search')
-
-    return oc
 
 @route(common.PREFIX + '/history')
 def HandleHistory(title):

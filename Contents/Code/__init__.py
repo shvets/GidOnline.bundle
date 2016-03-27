@@ -40,7 +40,6 @@ def MainMenu():
     oc.add(DirectoryObject(key=Callback(main.HandlePremiers, title=unicode(L("Premiers"))), title=unicode(L("Premiers"))))
     oc.add(DirectoryObject(key=Callback(main.HandleQueue, title=unicode(L('Queue'))), title=unicode(L('Queue'))))
     oc.add(DirectoryObject(key=Callback(main.HandleHistory, title=unicode(L("History"))), title=unicode(L("History"))))
-
-    oc.add(InputDirectoryObject(key=Callback(main.Search), title=unicode(L("Search")), thumb=R(common.SEARCH_ICON)))
+    oc.add(InputDirectoryObject(key=Callback(main.HandleSearch), title=unicode(L("Search")), thumb=R(common.SEARCH_ICON)))
 
     return oc

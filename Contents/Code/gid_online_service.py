@@ -44,31 +44,31 @@ class GidOnlineService(MwService):
         response = self.http_request(self.URL)
         document = self.to_document(response.read())
 
-        all_actors = self.fix_name(self.get_category('actors-dropdown', document))
+        all_list = self.fix_name(self.get_category('actors-dropdown', document))
 
-        all_actors = sorted(all_actors, key=operator.itemgetter("name"))
+        all_list = sorted(all_list, key=operator.itemgetter("name"))
 
         if letter:
-            actors = filter(lambda x: x['name'][0] == letter.decode('utf-8'), all_actors)
+            list = filter(lambda x: x['name'][0] == letter.decode('utf-8'), all_list)
         else:
-            actors = all_actors
+            list = all_list
 
-        return self.fix_path(actors)
+        return self.fix_path(list)
 
     def get_directors(self, letter=None):
         response = self.http_request(self.URL)
         document = self.to_document(response.read())
 
-        all_directors = self.fix_name(self.get_category('director-dropdown', document))
+        all_list = self.fix_name(self.get_category('director-dropdown', document))
 
-        all_directors = sorted(all_directors, key=operator.itemgetter("name"))
+        all_list = sorted(all_list, key=operator.itemgetter("name"))
 
         if letter:
-            directors = filter(lambda x: x['name'][0] == letter.decode('utf-8'), all_directors)
+            list = filter(lambda x: x['name'][0] == letter.decode('utf-8'), all_list)
         else:
-            directors = all_directors
+            list = all_list
 
-        return self.fix_path(directors)
+        return self.fix_path(list)
 
     def get_countries(self):
         response = self.http_request(self.URL)
@@ -81,6 +81,8 @@ class GidOnlineService(MwService):
         document = self.to_document(response.read())
 
         return self.fix_path(self.get_category('year-dropdown', document))
+
+    # def get_all_categories(self):
 
     def get_seasons(self, path):
         return self.get_category('season', self.get_movie_document(self.URL + path))
@@ -291,6 +293,27 @@ class GidOnlineService(MwService):
             path = "/?" + params
 
         return self.get_movies(path)
+
+    def search_actors(self, query):
+        return self.search_in_list(self.get_actors(), query)
+
+    def search_directors(self, query):
+        return self.search_in_list(self.get_directors(), query)
+
+    def search_countries(self, query):
+        return self.search_in_list(self.get_countries(), query)
+
+    def search_years(self, query):
+        return self.search_in_list(self.get_years(), query)
+
+    def search_in_list(self, list, query):
+        new_list = []
+
+        for item in list:
+            if item['name'].lower().find(query.decode('utf-8').lower()) >= 0:
+                new_list.append(item)
+
+        return new_list
 
     def convert_duration(self, s):
         tokens = s.split(' ')
