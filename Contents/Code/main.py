@@ -170,7 +170,7 @@ def HandleContainer(path, title, name, thumb):
 
     data = service.get_session_data(document)
 
-    if data['content_type'] == 'serial':
+    if data['content_type'] == 'serial' or service.hasSeasons(path):
         oc = ObjectContainer(title2=unicode(title))
 
         serial_info = service.get_serial_info(document)

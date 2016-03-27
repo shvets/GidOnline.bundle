@@ -179,7 +179,23 @@ class GidOnlineService(MwService):
 
         urls = frame_block.xpath('iframe[@class="ifram"]/@src')
 
-        return urls[0]
+        if len(urls) > 0:
+            return urls[0]
+        else:
+            url = 'http://gidonline.club/trailer.php'
+
+            data = {
+                'id_post': document.xpath('head/meta[@id="meta"]')[0].get('content')
+            }
+            response = self.http_request(url, method='POST', data=data)
+
+            content = response.read()
+
+            document = self.to_document(content)
+
+            urls = document.xpath('//iframe[@class="ifram"]/@src')
+
+            return urls[0]
 
     def retrieve_url(self, url, season=None, episode=None):
         document = self.get_movie_document(url, season=season, episode=episode)
@@ -204,7 +220,16 @@ class GidOnlineService(MwService):
         else:
             movie_url = gateway_url
 
-        return self.fetch_document(movie_url)
+        Log(movie_url)
+
+        if movie_url.find('//www.youtube.com') > -1:
+            movie_url = movie_url.replace('//', 'http://')
+
+            Log(movie_url)
+
+            return self.fetch_document(movie_url)
+        else:
+            return self.fetch_document(movie_url)
 
     def get_media_data(self, document):
         data = {}
@@ -316,3 +341,8 @@ class GidOnlineService(MwService):
                 item['name'] = " ".join(names[len(names) - 1:]) + ', ' + names[:len(names) - 1][0]
 
         return list
+
+    def hasSeasons(self, url):
+        path = urlparse.urlparse(url).path
+
+        return len(self.get_seasons(path)) > 0
