@@ -11,6 +11,27 @@ builder = FlowBuilder()
 CYRILLIC_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С',
                     'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я']
 
+@route(common.PREFIX + '/sections')
+def HandleSections(title):
+    oc = ObjectContainer(title2=unicode(title), view_group='List')
+
+    oc.add(DirectoryObject(key=Callback(HandleActors, title=unicode(L("By Actors"))), title=unicode(L("By Actors"))))
+    oc.add(DirectoryObject(key=Callback(HandleDirectors, title=unicode(L("By Directors"))), title=unicode(L("By Directors"))))
+    oc.add(DirectoryObject(key=Callback(HandleCountries, title=unicode(L("By Countries"))), title=unicode(L("By Countries"))))
+    oc.add(DirectoryObject(key=Callback(HandleYears, title=unicode(L("By Years"))), title=unicode(L("By Years"))))
+
+    return oc
+
+@route(common.PREFIX + '/themes')
+def HandleThemes(title):
+    oc = ObjectContainer(title2=unicode(title), view_group='List')
+
+    oc.add(DirectoryObject(key=Callback(HandleTopSeven, title=unicode(L("Top Seven"))), title=unicode(L("Top Seven"))))
+    oc.add(DirectoryObject(key=Callback(HandleNewMovies, title=unicode(L("New Movies"))), title=unicode(L("New Movies"))))
+    oc.add(DirectoryObject(key=Callback(HandlePremiers, title=unicode(L("Premiers"))), title=unicode(L("Premiers"))))
+
+    return oc
+
 @route(common.PREFIX + '/movies')
 def HandleMovies(title, path=None, page=1):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
