@@ -29,7 +29,31 @@ class GidOnlineService(MwService):
 
             list.append({"path": path, "name": name[0] + name[1:].lower()})
 
-        return list
+        new_list = [
+            list[14],
+            list[8],
+            list[4],
+            list[15],
+            list[12],
+            list[10],
+            list[5],
+            list[20],
+            list[19],
+            list[13],
+            list[9],
+            list[17],
+            list[18],
+            list[2],
+            list[7],
+            list[0],
+            list[1],
+            list[3],
+            list[6],
+            list[11],
+            list[16]
+        ]
+
+        return new_list
 
     def get_top_links(self, document):
         list = []
