@@ -52,7 +52,7 @@ class MwService(HttpService):
 
         return {'cookie': str(cookie), 'csrf-token': str(csrf_token)}
 
-    def get_url(self, headers, data):
+    def get_urls(self, headers, data):
         response = self.http_request(method='POST', url='http://moonwalk.cc/sessions/create_session',
                                      headers=headers, data=data)
 
@@ -64,9 +64,21 @@ class MwService(HttpService):
 
         data2 = response2.read()
 
-        url2 = [line for line in data2.splitlines() if line].pop()
+        #url2 = [line for line in data2.splitlines() if line].pop()
 
-        return url2
+        lines = data2.splitlines()
+
+        urls = []
+
+        for index, line in enumerate(lines):
+            if line.startswith('#EXTM3U'):
+                continue
+            elif not line.startswith('#EXT-X-STREAM-INF'):
+                data = re.search("#EXT-X-STREAM-INF:RESOLUTION=(\d+)x(\d+),BANDWIDTH=(\d+)", lines[index-1])
+
+                urls.append({"url": line, "width": data.group(1), "height": data.group(2), "bandwith": data.group(3)})
+
+        return urls
 
     def replace_keys(self, s, keys):
         s = s.replace('\'', '"')

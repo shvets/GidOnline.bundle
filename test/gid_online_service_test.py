@@ -85,9 +85,9 @@ class GidOnlineServiceTest(unittest.TestCase):
 
         movie_url = 'http://gidonline.club/2012/10/pobeg-2005/'
 
-        url = service.retrieve_url(movie_url)
+        urls = service.retrieve_urls(movie_url)
 
-        print(url)
+        print(json.dumps(urls, indent=4))
 
     def test_retrieve_serials_url(self):
         movie_url = 'http://gidonline.club/2016/03/strazhi-galaktiki/'
@@ -101,9 +101,11 @@ class GidOnlineServiceTest(unittest.TestCase):
     def test_get_play_list(self):
         movie_url = all_movies[0]['path']
 
-        url = service.retrieve_url(movie_url)
+        urls = service.retrieve_urls(movie_url)
 
-        play_list = service.get_play_list(url)
+        print(json.dumps(urls, indent=4))
+
+        play_list = service.get_play_list(urls[2]['url'])
 
         print(play_list)
 

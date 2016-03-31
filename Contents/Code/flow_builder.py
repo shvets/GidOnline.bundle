@@ -1,13 +1,4 @@
 class FlowBuilder():
-    def build_media_objects(self, play_callback, **params):
-        media_objects = []
-
-        media_object = self.build_media_object(play_callback, **params)
-
-        media_objects.append(media_object)
-
-        return media_objects
-
     def build_media_object(self, play_callback, **params):
         audio_stream = AudioStreamObject()
 
@@ -56,19 +47,21 @@ class FlowBuilder():
 
     def build_metadata_object(self, media_type, name, year, index=None):
         if media_type == 'episode':
-            # video = EpisodeObject(show=name, index=int(index))
             video = EpisodeObject()
+
             video.show = name
             video.year = int(year)
             video.index = int(index)
+
         elif media_type == 'movie':
-            # video = MovieObject(title=name, year=int(year))
             video = MovieObject()
+
             video.title = name
             video.year = int(year)
+
         else:
-            # video = VideoClipObject(title=name, year=int(year))
             video = VideoClipObject()
+
             video.title = name
             video.year = int(year)
 

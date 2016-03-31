@@ -316,17 +316,20 @@ def GetVideoObject(path, title, name, thumb, season, episode):
 
     video.items = []
 
-    play_callback = Callback(PlayVideo, url=path, season=season, episode=episode)
+    urls = service.retrieve_urls(path, season=season, episode=episode)
 
-    video.items.extend(builder.build_media_objects(play_callback))
+    for item in urls:
+        play_callback = Callback(PlayVideo, url=item['url'])
+
+        media_object = builder.build_media_object(play_callback, video_resolution=item['width'])
+
+        video.items.append(media_object)
 
     return video
 
 @indirect
 @route(common.PREFIX + '/play_video')
-def PlayVideo(url, season=None, episode=None):
-    url = service.retrieve_url(url, season=season, episode=episode)
-
+def PlayVideo(url):
     if not url:
         util.no_contents()
     else:

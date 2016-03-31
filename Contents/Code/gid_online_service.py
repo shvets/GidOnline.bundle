@@ -217,14 +217,16 @@ class GidOnlineService(MwService):
     #     return list
 
     def get_gateway_url(self, document):
+        gateway_url = None
+
         frame_block = document.xpath('//div[@class="tray"]')[0]
 
         urls = frame_block.xpath('iframe[@class="ifram"]/@src')
 
         if len(urls) > 0:
-            return urls[0]
+            gateway_url = urls[0]
         else:
-            url = 'http://gidonline.club/trailer.php'
+            url = self.URL + '/trailer.php'
 
             data = {
                 'id_post': document.xpath('head/meta[@id="meta"]')[0].get('content')
@@ -237,9 +239,12 @@ class GidOnlineService(MwService):
 
             urls = document.xpath('//iframe[@class="ifram"]/@src')
 
-            return urls[0]
+            if len(urls) > 0:
+                gateway_url = urls[0]
 
-    def retrieve_url(self, url, season=None, episode=None):
+        return gateway_url
+
+    def retrieve_urls(self, url, season=None, episode=None):
         document = self.get_movie_document(url, season=season, episode=episode)
 
         data = self.get_session_data(document)
@@ -252,7 +257,7 @@ class GidOnlineService(MwService):
             # 'X-CSRF-Token': cookie_info['csrf-token']
         }
 
-        return self.get_url(headers, data)
+        return self.get_urls(headers, data)
 
     def get_movie_document(self, url, season=None, episode=None):
         gateway_url = self.get_gateway_url(self.fetch_document(url))
