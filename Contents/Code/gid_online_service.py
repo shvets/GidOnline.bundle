@@ -18,7 +18,7 @@ class GidOnlineService(MwService):
 
         return url
 
-    def get_genres(self, document):
+    def get_genres(self, document, type=None):
         list = []
 
         links = document.xpath('//div[@id="catline"]//li/a')
@@ -29,22 +29,31 @@ class GidOnlineService(MwService):
 
             list.append({"path": path, "name": name[0] + name[1:].lower()})
 
-        new_list = [
+        family_group = [
             list[14],
             list[15],
             list[12],
             list[8],
-            list[4],
-            list[9],
             list[10],
             list[5],
-            list[13],
+            list[13]
+        ]
+
+        crime_group = [
+            list[4],
+            list[9],
             list[2],
-            list[0],
+            list[0]
+        ]
+
+        fiction_group = [
             list[20],
             list[19],
             list[17],
-            list[18],
+            list[18]
+        ]
+
+        education_group = [
             list[1],
             list[7],
             list[3],
@@ -53,7 +62,16 @@ class GidOnlineService(MwService):
             list[16]
         ]
 
-        return new_list
+        if type == 'Family':
+            return family_group
+        elif type == 'Crime':
+            return crime_group
+        elif type == 'Fiction':
+            return fiction_group
+        elif type == 'Education':
+            return education_group
+        else:
+            return family_group + crime_group + fiction_group + education_group
 
     def get_top_links(self, document):
         list = []
@@ -244,12 +262,8 @@ class GidOnlineService(MwService):
         else:
             movie_url = gateway_url
 
-        Log(movie_url)
-
         if movie_url.find('//www.youtube.com') > -1:
             movie_url = movie_url.replace('//', 'http://')
-
-            Log(movie_url)
 
             return self.fetch_document(movie_url)
         else:

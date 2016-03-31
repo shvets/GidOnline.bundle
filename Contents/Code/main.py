@@ -56,15 +56,33 @@ def HandleMovies(title, path=None, page=1):
 def HandleGenres(title):
     oc = ObjectContainer(title2=unicode(title))
 
+    groups = [
+        "Family",
+        "Crime",
+        "Fiction",
+        "Education"
+    ]
+
+    for name in groups:
+        key = Callback(HandleGenresGroup, title=name)
+
+        oc.add(DirectoryObject(key=key, title=unicode(L(name))))
+
+    return oc
+
+@route(common.PREFIX + '/genres_group')
+def HandleGenresGroup(title):
+    oc = ObjectContainer(title2=unicode(L(title)))
+
     document = service.fetch_document(service.URL)
 
-    for genre in service.get_genres(document):
+    for index, genre in enumerate(service.get_genres(document, type=title)):
         path = genre['path']
-        title = genre['name']
+        name = genre['name']
 
-        key = Callback(HandleMovies, path=path, title=title)
+        key = Callback(HandleMovies, path=path, title=name)
 
-        oc.add(DirectoryObject(key=key, title=title))
+        oc.add(DirectoryObject(key=key, title=name))
 
     return oc
 
