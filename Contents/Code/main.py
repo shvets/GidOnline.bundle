@@ -213,7 +213,7 @@ def HandleContainer(path, title, name, thumb):
 
     data = service.get_session_data(content)
 
-    if data['content_type'] == 'serial' or service.hasSeasons(path):
+    if data and data['content_type'] == 'serial' or service.hasSeasons(path):
         oc = ObjectContainer(title2=unicode(title))
 
         serial_info = service.get_serial_info(document)
@@ -277,29 +277,34 @@ def HandleEpisodes(path, title, name, thumb, season, container=False):
 
 @route(common.PREFIX + '/movie', container=bool)
 def HandleMovie(path, title, name, thumb, season=None, episode=None, container=False, **params):
-    oc = ObjectContainer(title2=unicode(name))
+    urls = service.retrieve_urls(path, season=season, episode=episode)
 
-    media_info = {
-        "path": path,
-        "title": title,
-        "name": name,
-        "thumb": thumb,
-        "season": season,
-        "episode": episode
-    }
+    if not urls:
+        return util.no_contents()
+    else:
+        media_info = {
+            "path": path,
+            "title": title,
+            "name": name,
+            "thumb": thumb,
+            "season": season,
+            "episode": episode
+        }
 
-    oc.add(GetVideoObject(path=path, title=title, name=name, thumb=thumb, season=season, episode=episode))
+        oc = ObjectContainer(title2=unicode(name))
 
-    if str(container) == 'False':
-        history.push_to_history(media_info)
-        service.queue.append_queue_controls(oc, media_info,
-            add_bookmark_handler=HandleAddBookmark,
-            remove_bookmark_handler = HandleRemoveBookmark
-        )
+        oc.add(
+            GetVideoObject(path=path, title=title, name=name, thumb=thumb, season=season, episode=episode, urls=urls))
 
-    return oc
+        if str(container) == 'False':
+            history.push_to_history(media_info)
+            service.queue.append_queue_controls(oc, media_info,
+                                                add_bookmark_handler=HandleAddBookmark,
+                                                remove_bookmark_handler=HandleRemoveBookmark
+                                                )
+        return oc
 
-def GetVideoObject(path, title, name, thumb, season, episode):
+def GetVideoObject(path, title, name, thumb, season, episode, urls):
     video = MovieObject(title=unicode(title))
 
     document = service.fetch_document(path)
@@ -320,30 +325,16 @@ def GetVideoObject(path, title, name, thumb, season, episode):
 
     video.items = []
 
-    urls = service.retrieve_urls(path, season=season, episode=episode)
-
     for item in urls:
-        play_callback = Callback(PlayVideo, url=item['url'])
+        url = item['url']
+
+        play_callback = Callback(PlayVideo, url=url)
 
         media_object = builder.build_media_object(play_callback, video_resolution=item['width'])
 
         video.items.append(media_object)
 
     return video
-
-@indirect
-@route(common.PREFIX + '/play_video')
-def PlayVideo(url):
-    if not url:
-        util.no_contents()
-    else:
-        play_list = Callback(Playlist, url=url)
-
-        return IndirectResponse(MovieObject, key=HTTPLiveStreamURL(play_list))
-
-@route(common.PREFIX + '/Playlist.m3u8')
-def Playlist(url):
-    return service.get_play_list(url)
 
 @route(common.PREFIX + '/search')
 def HandleSearch(query=None, page=1):
@@ -473,3 +464,17 @@ def HandleRemoveBookmark(**params):
     service.queue.remove_bookmark(params)
 
     return ObjectContainer(header=unicode(L(params['title'])), message=unicode(L('Bookmark Removed')))
+
+@indirect
+@route(common.PREFIX + '/play_video')
+def PlayVideo(url):
+    if not url:
+        return util.no_contents()
+    else:
+        play_list = Callback(Playlist, url=url)
+
+        return IndirectResponse(MovieObject, key=HTTPLiveStreamURL(play_list))
+
+@route(common.PREFIX + '/Playlist.m3u8')
+def Playlist(url):
+    return service.get_play_list(url)

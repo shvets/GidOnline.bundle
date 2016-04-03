@@ -28,30 +28,32 @@ class MwService(HttpService):
             return base64.b64encode(data.group(1))
 
     def get_urls(self, headers, data):
-        response = self.http_request(method='POST', url='http://moonwalk.cc/sessions/create_session',
-                                     headers=headers, data=data)
-
-        data = json.loads(response.read())
-
-        manifest_url = data['manifest_m3u8']
-
-        response2 = self.http_request(manifest_url)
-
-        data2 = response2.read()
-
-        # url2 = [line for line in data2.splitlines() if line].pop()
-
-        lines = data2.splitlines()
-
         urls = []
 
-        for index, line in enumerate(lines):
-            if line.startswith('#EXTM3U'):
-                continue
-            elif not line.startswith('#EXT-X-STREAM-INF'):
-                data = re.search("#EXT-X-STREAM-INF:RESOLUTION=(\d+)x(\d+),BANDWIDTH=(\d+)", lines[index - 1])
+        try:
+            response = self.http_request(method='POST', url='http://moonwalk.cc/sessions/create_session',
+                                         headers=headers, data=data)
 
-                urls.append({"url": line, "width": data.group(1), "height": data.group(2), "bandwith": data.group(3)})
+            data = json.loads(response.read())
+
+            manifest_url = data['manifest_m3u8']
+
+            response2 = self.http_request(manifest_url)
+
+            data2 = response2.read()
+
+            lines = data2.splitlines()
+
+            for index, line in enumerate(lines):
+                if line.startswith('#EXTM3U'):
+                    continue
+                elif not line.startswith('#EXT-X-STREAM-INF'):
+                    data = re.search("#EXT-X-STREAM-INF:RESOLUTION=(\d+)x(\d+),BANDWIDTH=(\d+)", lines[index - 1])
+
+                    urls.append(
+                        {"url": line, "width": data.group(1), "height": data.group(2), "bandwith": data.group(3)})
+        except:
+            pass
 
         return urls
 
