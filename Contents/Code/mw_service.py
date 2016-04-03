@@ -47,7 +47,7 @@ class MwService(HttpService):
             for index, line in enumerate(lines):
                 if line.startswith('#EXTM3U'):
                     continue
-                elif not line.startswith('#EXT-X-STREAM-INF'):
+                elif len(line.strip()) > 0 and not line.startswith('#EXT-X-STREAM-INF'):
                     data = re.search("#EXT-X-STREAM-INF:RESOLUTION=(\d+)x(\d+),BANDWIDTH=(\d+)", lines[index - 1])
 
                     urls.append(
