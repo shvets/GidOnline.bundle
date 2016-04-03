@@ -1,6 +1,7 @@
 import urlparse
 import re
 import operator
+from lxml.etree import tostring
 
 from mw_service import MwService
 
@@ -137,8 +138,137 @@ class GidOnlineService(MwService):
 
         return list
 
-    def get_movies(self, document, path=None):
+    def find_pages(self, path, link):
+        search_mode = (path and path.find('/?s=') >= 0)
+
+        if path:
+            if search_mode:
+                pattern = self.URL + '/page/'
+            else:
+                pattern = self.URL + path + 'page/'
+        else:
+            pattern = self.URL + '/page/'
+
+        data = re.search('(' + pattern + ')(\d*)/', link)
+
+        return int(data.group(2))
+
+    def get_gateway_url(self, document):
+        gateway_url = None
+
+        frame_block = document.xpath('//div[@class="tray"]')[0]
+
+        urls = frame_block.xpath('iframe[@class="ifram"]/@src')
+
+        if len(urls) > 0:
+            gateway_url = urls[0]
+        else:
+            url = self.URL + '/trailer.php'
+
+            data = {
+                'id_post': document.xpath('head/meta[@id="meta"]')[0].get('content')
+            }
+            response = self.http_request(url, method='POST', data=data)
+
+            content = response.read()
+
+            document = self.to_document(content)
+
+            urls = document.xpath('//iframe[@class="ifram"]/@src')
+
+            if len(urls) > 0:
+                gateway_url = urls[0]
+
+        return gateway_url
+
+    def get_media_data(self, document):
+        data = {}
+
+        block = document.xpath('//div[@id="face"]')[0]
+
+        thumb = block.xpath('div/img[@class="t-img"]')[0].get("src")
+
+        data['thumb'] = self.URL + thumb
+
+        items1 = block.xpath('div/div[@class="t-row"]/div[@class="r-1"]//div[@class="rl-2"]')
+        items2 = block.xpath('div/div[@class="t-row"]/div[@class="r-2"]//div[@class="rl-2"]')
+
+        data['title'] = items1[0].text_content()
+        data['country'] = items1[1].text_content()
+        data['duration'] = self.convert_duration(items1[2].text_content())
+        data['year'] = int(items2[0].text_content())
+        data['tags'] = items2[1].text_content().split(',')
+
+        description_block = document.xpath('//div[@class="description"]')[0]
+
+        data['description'] = unicode(description_block.xpath('div[@class="infotext"]')[0].text_content())
+
+        data['rating'] = float(document.xpath('//div[@class="nvz"]/meta')[1].get('content'))
+
+        return data
+
+    def retrieve_urls(self, url, season=None, episode=None):
+        document = self.get_movie_document(url, season=season, episode=episode)
+        content = tostring(document.xpath('body')[0])
+
+        data = self.get_session_data(content)
+
+        headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Referer': url,
+            'Content-Data': self.get_content_data(content)
+        }
+
+        return self.get_urls(headers, data)
+
+    def get_movie_document(self, url, season=None, episode=None):
+        gateway_url = self.get_gateway_url(self.fetch_document(url))
+
+        if season:
+            movie_url = '%s?season=%d&episode=%d' % (gateway_url, int(season), int(episode))
+        else:
+            movie_url = gateway_url
+
+        if movie_url.find('//www.youtube.com') > -1:
+            movie_url = movie_url.replace('//', 'http://')
+
+            return self.fetch_document(movie_url)
+        else:
+            return self.fetch_document(movie_url)
+
+    def get_serial_info(self, document):
+        ret = {}
+
+        ret['seasons'] = {}
+        ret['episodes'] = {}
+
+        for item in document.xpath('//select[@id="season"]/option'):
+            value = int(item.get('value'))
+            ret['seasons'][value] = unicode(item.text_content())
+            if item.get('selected'):
+                ret['current_season'] = int(value)
+
+        for item in document.xpath('//select[@id="episode"]/option'):
+            value = int(item.get('value'))
+            ret['episodes'][value] = unicode(item.text_content())
+            if item.get('selected'):
+                ret['current_episode'] = int(value)
+
+        return ret
+
+    def search(self, query, page=1):
+        url = self.build_url(self.get_page_url(None, page), s=query)
+
+        content = self.fetch_content(url)
+
+        movies = self.get_movies(content, url)
+
+        return movies
+
+    def get_movies(self, content, path=None):
         result = {'movies': []}
+
+        document = self.to_document(content)
 
         links = document.xpath('//div[@id="main"]/div[@id="posts"]/a[@class="mainlink"]')
 
@@ -150,11 +280,13 @@ class GidOnlineService(MwService):
             result['movies'].append({"path": href, "name": name, "thumb": thumb})
 
         if len(result['movies']) > 0:
-            result["pagination"] = self.extract_pagination_data(document, path)
+            result["pagination"] = self.extract_pagination_data(content, path)
 
         return result
 
-    def extract_pagination_data(self, document, path):
+    def extract_pagination_data(self, content, path):
+        document = self.to_document(content)
+
         pagination_root = document.xpath('//div[@id="page_navi"]/div[@class="wp-pagenavi"]')
 
         if pagination_root:
@@ -187,145 +319,6 @@ class GidOnlineService(MwService):
             "has_previous": page > 1,
             "has_next": page < pages,
         }
-
-    def find_pages(self, path, link):
-        search_mode = (path and path.find('/?s=') >= 0)
-
-        if path:
-            if search_mode:
-                pattern = self.URL + '/page/'
-            else:
-                pattern = self.URL + path + 'page/'
-        else:
-            pattern = self.URL + '/page/'
-
-        data = re.search('(' + pattern + ')(\d*)/', link)
-
-        return int(data.group(2))
-
-    # def get_movie_details(self, document):
-    #     list = []
-    #
-    #     links = document.xpath('//div[@id="main"]/div[@id="face"]//div[@class="t-row"]//div[@class="rl-1"]')
-    #
-    #     for link in links:
-    #         details = {}
-    #         details['text'] = link.xpath("text()")
-    #
-    #         list.append(details)
-    #
-    #     return list
-
-    def get_gateway_url(self, document):
-        gateway_url = None
-
-        frame_block = document.xpath('//div[@class="tray"]')[0]
-
-        urls = frame_block.xpath('iframe[@class="ifram"]/@src')
-
-        if len(urls) > 0:
-            gateway_url = urls[0]
-        else:
-            url = self.URL + '/trailer.php'
-
-            data = {
-                'id_post': document.xpath('head/meta[@id="meta"]')[0].get('content')
-            }
-            response = self.http_request(url, method='POST', data=data)
-
-            content = response.read()
-
-            document = self.to_document(content)
-
-            urls = document.xpath('//iframe[@class="ifram"]/@src')
-
-            if len(urls) > 0:
-                gateway_url = urls[0]
-
-        return gateway_url
-
-    def retrieve_urls(self, url, season=None, episode=None):
-        document = self.get_movie_document(url, season=season, episode=episode)
-
-        data = self.get_session_data(document)
-
-        headers = {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Referer': url,
-            'Content-Data': self.get_content_data(document)
-            # 'Cookie': cookie_info['cookie'],
-            # 'X-CSRF-Token': cookie_info['csrf-token']
-        }
-
-        return self.get_urls(headers, data)
-
-    def get_movie_document(self, url, season=None, episode=None):
-        gateway_url = self.get_gateway_url(self.fetch_document(url))
-
-        if season:
-            movie_url = '%s?season=%d&episode=%d' % (gateway_url, int(season), int(episode))
-        else:
-            movie_url = gateway_url
-
-        if movie_url.find('//www.youtube.com') > -1:
-            movie_url = movie_url.replace('//', 'http://')
-
-            return self.fetch_document(movie_url)
-        else:
-            return self.fetch_document(movie_url)
-
-    def get_media_data(self, document):
-        data = {}
-
-        block = document.xpath('//div[@id="face"]')[0]
-
-        thumb = block.xpath('div/img[@class="t-img"]')[0].get("src")
-
-        data['thumb'] = self.URL + thumb
-
-        items1 = block.xpath('div/div[@class="t-row"]/div[@class="r-1"]//div[@class="rl-2"]')
-        items2 = block.xpath('div/div[@class="t-row"]/div[@class="r-2"]//div[@class="rl-2"]')
-
-        data['title'] = items1[0].text_content()
-        data['country'] = items1[1].text_content()
-        data['duration'] = self.convert_duration(items1[2].text_content())
-        data['year'] = int(items2[0].text_content())
-        data['tags'] = items2[1].text_content().split(',')
-
-        description_block = document.xpath('//div[@class="description"]')[0]
-
-        data['description'] = unicode(description_block.xpath('div[@class="infotext"]')[0].text_content())
-
-        data['rating'] =float(document.xpath('//div[@class="nvz"]/meta')[1].get('content'))
-
-        return data
-
-    def get_serial_info(self, document):
-        ret = {}
-
-        ret['seasons'] = {}
-        ret['episodes'] = {}
-
-        for item in document.xpath('//select[@id="season"]/option'):
-            value = int(item.get('value'))
-            ret['seasons'][value] = unicode(item.text_content())
-            if item.get('selected'):
-                ret['current_season'] = int(value)
-
-        for item in document.xpath('//select[@id="episode"]/option'):
-            value = int(item.get('value'))
-            ret['episodes'][value] = unicode(item.text_content())
-            if item.get('selected'):
-                ret['current_episode'] = int(value)
-
-        return ret
-
-    def search(self, query, page=1):
-        url = self.build_url(self.get_page_url(None, page), s=query)
-
-        document = self.fetch_document(url)
-
-        return self.get_movies(document, urlparse.urlparse(url).path)
 
     def search_actors(self, document, query):
         return self.search_in_list(self.get_actors(document), query)

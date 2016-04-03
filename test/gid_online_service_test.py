@@ -11,8 +11,9 @@ from gid_online_service import GidOnlineService
 
 service = GidOnlineService()
 
-document = service.fetch_document(service.URL)
-all_movies = service.get_movies(document)['movies']
+content = service.fetch_content(service.URL)
+document = service.to_document(content)
+all_movies = service.get_movies(content)['movies']
 
 class GidOnlineServiceTest(unittest.TestCase):
     def get_document(self):
@@ -72,9 +73,9 @@ class GidOnlineServiceTest(unittest.TestCase):
         print(json.dumps(all_movies, indent=4))
 
     def test_get_movies_on_genre_page(self):
-        document = service.fetch_document(service.URL + '/genre/vestern/')
+        content = service.fetch_content(service.URL + '/genre/vestern/')
 
-        result = service.get_movies(document, '/genre/vestern/')
+        result = service.get_movies(content)
 
         print(json.dumps(result, indent=4))
 

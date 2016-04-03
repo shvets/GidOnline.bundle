@@ -49,6 +49,7 @@ class HttpService():
         path = '/'.join(path)
 
         lines = self.http_request(url).read().splitlines()
+
         new_lines = []
 
         for line in lines:
@@ -59,10 +60,11 @@ class HttpService():
 
         return "\n".join(new_lines)
 
-    def fetch_document(self, url):
-        response = self.http_request(url)
+    def fetch_content(self, url):
+        return self.http_request(url).read()
 
-        content = response.read()
+    def fetch_document(self, url):
+        content = self.fetch_content(url)
 
         return self.to_document(content)
 

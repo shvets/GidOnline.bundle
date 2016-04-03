@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from lxml.etree import tostring
+
 import common
 import util
 from flow_builder import FlowBuilder
@@ -36,9 +38,9 @@ def HandleThemes(title):
 def HandleMovies(title, path=None, page=1):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
-    document = service.fetch_document(service.get_page_url(path, page))
+    content = service.fetch_content(service.get_page_url(path, page))
 
-    response = service.get_movies(document, path)
+    response = service.get_movies(content, path)
 
     for movie in response['movies']:
         name = movie['name']
@@ -207,7 +209,9 @@ def HandleYears(title):
 def HandleContainer(path, title, name, thumb):
     document = service.get_movie_document(path)
 
-    data = service.get_session_data(document)
+    content = tostring(document.xpath('body')[0])
+
+    data = service.get_session_data(content)
 
     if data['content_type'] == 'serial' or service.hasSeasons(path):
         oc = ObjectContainer(title2=unicode(title))
