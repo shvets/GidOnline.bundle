@@ -139,7 +139,7 @@ class GidOnlineService(MwService):
         return list
 
     def find_pages(self, path, link):
-        search_mode = (path and path.find('/?s=') >= 0)
+        search_mode = (path and path.find('?s=') >= 0)
 
         if path:
             if search_mode:
@@ -259,16 +259,14 @@ class GidOnlineService(MwService):
     def search(self, query, page=1):
         url = self.build_url(self.get_page_url(None, page), s=query)
 
-        content = self.fetch_content(url)
+        document = self.fetch_document(url)
 
-        movies = self.get_movies(content, url)
+        movies = self.get_movies(document, url)
 
         return movies
 
-    def get_movies(self, content, path=None):
+    def get_movies(self, document, path=None):
         result = {'movies': []}
-
-        document = self.to_document(content)
 
         links = document.xpath('//div[@id="main"]/div[@id="posts"]/a[@class="mainlink"]')
 
@@ -280,13 +278,11 @@ class GidOnlineService(MwService):
             result['movies'].append({"path": href, "name": name, "thumb": thumb})
 
         if len(result['movies']) > 0:
-            result["pagination"] = self.extract_pagination_data(content, path)
+            result["pagination"] = self.extract_pagination_data(document, path)
 
         return result
 
-    def extract_pagination_data(self, content, path):
-        document = self.to_document(content)
-
+    def extract_pagination_data(self, document, path):
         pagination_root = document.xpath('//div[@id="page_navi"]/div[@class="wp-pagenavi"]')
 
         if pagination_root:

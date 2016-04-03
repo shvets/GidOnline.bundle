@@ -38,9 +38,9 @@ def HandleThemes(title):
 def HandleMovies(title, path=None, page=1):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
-    content = service.fetch_content(service.get_page_url(path, page))
+    document = service.fetch_document(service.get_page_url(path, page))
 
-    response = service.get_movies(content, path)
+    response = service.get_movies(document, path)
 
     for movie in response['movies']:
         name = movie['name']
