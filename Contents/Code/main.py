@@ -294,7 +294,7 @@ def HandleMovie(path, title, name, thumb, season=None, episode=None, container=F
         oc = ObjectContainer(title2=unicode(name))
 
         oc.add(
-            GetVideoObject(path=path, title=title, name=name, thumb=thumb, season=season, episode=episode, urls=urls))
+            MetadataObjectForURL(path=path, title=title, name=name, thumb=thumb, season=season, episode=episode, urls=urls))
 
         if str(container) == 'False':
             history.push_to_history(media_info)
@@ -304,7 +304,7 @@ def HandleMovie(path, title, name, thumb, season=None, episode=None, container=F
                                                 )
         return oc
 
-def GetVideoObject(path, title, name, thumb, season, episode, urls):
+def MetadataObjectForURL(path, title, name, thumb, season, episode, urls):
     video = MovieObject(title=unicode(title))
 
     document = service.fetch_document(path)
@@ -323,7 +323,12 @@ def GetVideoObject(path, title, name, thumb, season, episode, urls):
     video.key = Callback(HandleMovie, path=path, title=title, name=name, thumb=thumb,
                          season=season, episode=episode, container=True)
 
-    video.items = []
+    video.items.extend(MediaObjectsForURL(urls))
+
+    return video
+
+def MediaObjectsForURL(urls):
+    items = []
 
     for item in urls:
         url = item['url']
@@ -332,9 +337,9 @@ def GetVideoObject(path, title, name, thumb, season, episode, urls):
 
         media_object = builder.build_media_object(play_callback, video_resolution=item['width'])
 
-        video.items.append(media_object)
+        items.append(media_object)
 
-    return video
+    return items
 
 @route(common.PREFIX + '/search')
 def HandleSearch(query=None, page=1):
