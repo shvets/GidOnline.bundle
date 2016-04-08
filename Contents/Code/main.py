@@ -2,7 +2,7 @@
 
 from lxml.etree import tostring
 
-import common
+import constants
 import util
 from flow_builder import FlowBuilder
 import pagination
@@ -13,7 +13,7 @@ builder = FlowBuilder()
 CYRILLIC_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С',
                     'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я']
 
-@route(common.PREFIX + '/sections')
+@route(constants.PREFIX + '/sections')
 def HandleSections(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -24,7 +24,7 @@ def HandleSections(title):
 
     return oc
 
-@route(common.PREFIX + '/themes')
+@route(constants.PREFIX + '/themes')
 def HandleThemes(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -34,7 +34,7 @@ def HandleThemes(title):
 
     return oc
 
-@route(common.PREFIX + '/movies')
+@route(constants.PREFIX + '/movies')
 def HandleMovies(title, path=None, page=1):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -54,7 +54,7 @@ def HandleMovies(title, path=None, page=1):
 
     return oc
 
-@route(common.PREFIX + '/genres')
+@route(constants.PREFIX + '/genres')
 def HandleGenres(title):
     oc = ObjectContainer(title2=unicode(title))
 
@@ -72,7 +72,7 @@ def HandleGenres(title):
 
     return oc
 
-@route(common.PREFIX + '/genres_group')
+@route(constants.PREFIX + '/genres_group')
 def HandleGenresGroup(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -88,7 +88,7 @@ def HandleGenresGroup(title):
 
     return oc
 
-@route(common.PREFIX + '/top_seven')
+@route(constants.PREFIX + '/top_seven')
 def HandleTopSeven(title):
     oc = ObjectContainer(title2=unicode(title))
 
@@ -105,15 +105,15 @@ def HandleTopSeven(title):
 
     return oc
 
-@route(common.PREFIX + '/new_movies')
+@route(constants.PREFIX + '/new_movies')
 def HandleNewMovies(title):
     return HandleMovies(title, path='/new/')
 
-@route(common.PREFIX + '/premiers')
+@route(constants.PREFIX + '/premiers')
 def HandlePremiers(title):
     return HandleMovies(title, path='/premiers/')
 
-@route(common.PREFIX + '/actors')
+@route(constants.PREFIX + '/actors')
 def HandleActors(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -127,7 +127,7 @@ def HandleActors(title):
 
     return oc
 
-@route(common.PREFIX + '/actors_letter')
+@route(constants.PREFIX + '/actors_letter')
 def HandleActorsLetter(title, letter):
     oc = ObjectContainer(title2=unicode(title))
 
@@ -143,7 +143,7 @@ def HandleActorsLetter(title, letter):
 
     return oc
 
-@route(common.PREFIX + '/directors')
+@route(constants.PREFIX + '/directors')
 def HandleDirectors(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -157,7 +157,7 @@ def HandleDirectors(title):
 
     return oc
 
-@route(common.PREFIX + '/directors_letter')
+@route(constants.PREFIX + '/directors_letter')
 def HandleDirectorsLetter(title, letter):
     oc = ObjectContainer(title2=unicode(title))
 
@@ -173,7 +173,7 @@ def HandleDirectorsLetter(title, letter):
 
     return oc
 
-@route(common.PREFIX + '/countries')
+@route(constants.PREFIX + '/countries')
 def HandleCountries(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -189,7 +189,7 @@ def HandleCountries(title):
 
     return oc
 
-@route(common.PREFIX + '/years')
+@route(constants.PREFIX + '/years')
 def HandleYears(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -205,7 +205,7 @@ def HandleYears(title):
 
     return oc
 
-@route(common.PREFIX + '/container')
+@route(constants.PREFIX + '/container')
 def HandleContainer(path, title, name, thumb):
     document = service.get_movie_document(path)
 
@@ -243,7 +243,7 @@ def HandleContainer(path, title, name, thumb):
     else:
         return HandleMovie(path=path, title=title, name=name, thumb=thumb)
 
-@route(common.PREFIX + '/episodes', container=bool)
+@route(constants.PREFIX + '/episodes', container=bool)
 def HandleEpisodes(path, title, name, thumb, season, container=False):
     document = service.get_movie_document(path, season, 1)
     serial_info = service.get_serial_info(document)
@@ -275,7 +275,7 @@ def HandleEpisodes(path, title, name, thumb, season, container=False):
 
     return oc
 
-@route(common.PREFIX + '/movie', container=bool)
+@route(constants.PREFIX + '/movie', container=bool)
 def HandleMovie(path, title, name, thumb, season=None, episode=None, container=False, **params):
     urls = service.retrieve_urls(path, season=season, episode=episode)
 
@@ -341,7 +341,7 @@ def MediaObjectsForURL(urls):
 
     return items
 
-@route(common.PREFIX + '/search')
+@route(constants.PREFIX + '/search')
 def HandleSearch(query=None, page=1):
     oc = ObjectContainer(title2=unicode(L('Search')))
 
@@ -413,9 +413,9 @@ def BuildSearchMovies(oc, page, query):
     pagination.append_controls(oc, response, page=page, callback=HandleSearch, query=query)
 
 
-@route(common.PREFIX + '/history')
+@route(constants.PREFIX + '/history')
 def HandleHistory(title):
-    history = Data.LoadObject(common.KEY_HISTORY)
+    history = Data.LoadObject(constants.KEY_HISTORY)
 
     oc = ObjectContainer(title2=unicode(title))
 
@@ -432,7 +432,7 @@ def HandleHistory(title):
 
     return oc
 
-@route(common.PREFIX + '/queue')
+@route(constants.PREFIX + '/queue')
 def HandleQueue(title):
     oc = ObjectContainer(title2=unicode(title))
 
@@ -458,20 +458,20 @@ def HandleQueue(title):
 
     return oc
 
-@route(common.PREFIX + '/add_bookmark')
+@route(constants.PREFIX + '/add_bookmark')
 def HandleAddBookmark(**params):
     service.queue.add_bookmark(params)
 
     return ObjectContainer(header=unicode(L(params['title'])), message=unicode(L('Bookmark Added')))
 
-@route(common.PREFIX + '/remove_bookmark')
+@route(constants.PREFIX + '/remove_bookmark')
 def HandleRemoveBookmark(**params):
     service.queue.remove_bookmark(params)
 
     return ObjectContainer(header=unicode(L(params['title'])), message=unicode(L('Bookmark Removed')))
 
 @indirect
-@route(common.PREFIX + '/play_video')
+@route(constants.PREFIX + '/play_video')
 def PlayVideo(url):
     if not url:
         return util.no_contents()
@@ -480,6 +480,6 @@ def PlayVideo(url):
 
         return IndirectResponse(MovieObject, key=HTTPLiveStreamURL(play_list))
 
-@route(common.PREFIX + '/Playlist.m3u8')
+@route(constants.PREFIX + '/Playlist.m3u8')
 def Playlist(url):
     return service.get_play_list(url)

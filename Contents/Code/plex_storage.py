@@ -1,4 +1,4 @@
-import common
+import constants
 from storage import Storage
 
 class PlexStorage(Storage):
@@ -23,13 +23,13 @@ class PlexStorage(Storage):
             oc.add(DirectoryObject(
                 key=Callback(remove_bookmark_handler, **media_info),
                 title=unicode(L('Remove Bookmark')),
-                thumb=R(common.REMOVE_ICON)
+                thumb=R(constants.REMOVE_ICON)
             ))
         else:
             oc.add(DirectoryObject(
                 key=Callback(add_bookmark_handler, **media_info),
                 title=unicode(L('Add Bookmark')),
-                thumb=R(common.ADD_ICON)
+                thumb=R(constants.ADD_ICON)
             ))
 
     def add_bookmark(self, media_info):

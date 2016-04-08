@@ -1,4 +1,4 @@
-import common
+import constants
 
 def append_controls(oc, response, page, callback, **params):
     page = int(page)
@@ -30,12 +30,12 @@ def append_controls(oc, response, page, callback, **params):
             oc.add(DirectoryObject(
                 key=previous_callback,
                 title=unicode(previous_message),
-                thumb=R(common.BACK_ICON)
+                thumb=R(constants.BACK_ICON)
             ))
 
         if pagination['has_next']:
             oc.add(DirectoryObject(
                 key=next_callback,
                 title=unicode(next_message),
-                thumb=R(common.NEXT_ICON)
+                thumb=R(constants.NEXT_ICON)
             ))

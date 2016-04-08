@@ -1,5 +1,8 @@
+KEY_HISTORY = 'history'
+HISTORY_SIZE = 60
+
 def push_to_history(item):
-    history = Data.LoadObject(common.KEY_HISTORY)
+    history = Data.LoadObject(KEY_HISTORY)
 
     if not history:
         history = {}
@@ -14,16 +17,19 @@ def push_to_history(item):
     }
 
     # Trim old items
-    if len(history) > common.HISTORY_SIZE:
+    if len(history) > HISTORY_SIZE:
         items = sorted(
             history.values(),
             key=lambda k: k['time'],
             reverse=True
-        )[:common.HISTORY_SIZE]
+        )[:HISTORY_SIZE]
 
         history = {}
 
         for item in items:
             history[item['path']] = item
 
-    Data.SaveObject(common.KEY_HISTORY, history)
+    Data.SaveObject(KEY_HISTORY, history)
+
+def load_history():
+    Data.LoadObject(KEY_HISTORY)
