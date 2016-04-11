@@ -388,3 +388,9 @@ class GidOnlineService(MwService):
         path = urlparse.urlparse(url).path
 
         return len(self.get_seasons(path)) > 0
+
+    def get_episode_url(self, url, season, episode):
+        if season:
+            return '%s?season=%d&episode=%d' % (url, int(season), int(episode))
+
+        return url
