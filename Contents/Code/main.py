@@ -5,7 +5,6 @@ import util
 from flow_builder import FlowBuilder
 import pagination
 import history
-import flow_builder
 
 builder = FlowBuilder()
 
