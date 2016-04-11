@@ -375,6 +375,15 @@ class GidOnlineService(MwService):
 
         return list
 
+    def is_serial(self, path):
+        document = self.get_movie_document(path)
+
+        content = tostring(document.xpath('body')[0])
+
+        data = self.get_session_data(content)
+
+        return data and data['content_type'] == 'serial' or self.hasSeasons(path)
+
     def hasSeasons(self, url):
         path = urlparse.urlparse(url).path
 

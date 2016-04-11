@@ -45,24 +45,17 @@ class FlowBuilder():
 
         return media_object
 
-    def build_metadata_object(self, media_type, name, year, index=None):
+    def build_metadata_object(self, media_type, **params):
         if media_type == 'episode':
-            video = EpisodeObject()
+            video = EpisodeObject(**params)
 
-            video.show = name
-            video.year = int(year)
-            video.index = int(index)
+        elif media_type == 'tv_show':
+            video = TVShowObject(**params)
 
         elif media_type == 'movie':
-            video = MovieObject()
-
-            video.title = name
-            video.year = int(year)
+            video = MovieObject(**params)
 
         else:
-            video = VideoClipObject()
-
-            video.title = name
-            video.year = int(year)
+            video = VideoClipObject(**params)
 
         return video

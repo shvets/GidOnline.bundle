@@ -32,4 +32,4 @@ def push_to_history(item):
     Data.SaveObject(KEY_HISTORY, history)
 
 def load_history():
-    Data.LoadObject(KEY_HISTORY)
+    return Data.LoadObject(KEY_HISTORY)
