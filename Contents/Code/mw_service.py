@@ -51,7 +51,7 @@ class MwService(HttpService):
                     data = re.search("#EXT-X-STREAM-INF:RESOLUTION=(\d+)x(\d+),BANDWIDTH=(\d+)", lines[index - 1])
 
                     urls.append(
-                        {"url": line, "width": int(data.group(1)), "height": int(data.group(2)), "bandwith": int(data.group(3))})
+                        {"url": line, "width": int(data.group(1)), "height": int(data.group(2)), "bandwidth": int(data.group(3))})
         except:
             pass
 

@@ -220,7 +220,7 @@ class GidOnlineService(MwService):
             'Content-Data': self.get_content_data(content)
         }
 
-        return sorted(self.get_urls(headers, data), key=itemgetter('width'), reverse=True)
+        return sorted(self.get_urls(headers, data), key=itemgetter('bandwidth'), reverse=True)
 
     def get_movie_document(self, url, season=None, episode=None):
         gateway_url = self.get_gateway_url(self.fetch_document(url))

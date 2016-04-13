@@ -479,7 +479,7 @@ def MediaObjectsForURL(urls):
 
         play_callback = Callback(PlayVideo, url=url)
 
-        media_object = builder.build_media_object(play_callback, video_resolution=item['width'])
+        media_object = builder.build_media_object(play_callback, video_resolution=item['width'], bitrate=item['bandwidth'])
 
         items.append(media_object)
 
