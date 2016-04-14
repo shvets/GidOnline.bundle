@@ -195,20 +195,24 @@ class GidOnlineService(MwService):
         items2 = block.xpath('div/div[@class="t-row"]/div[@class="r-2"]//div[@class="rl-2"]')
 
         data['title'] = items1[0].text_content()
-        data['country'] = items1[1].text_content()
+        data['countries'] = items1[1].text_content().split(',')
         data['duration'] = self.convert_duration(items1[2].text_content())
         data['year'] = int(items2[0].text_content())
         data['tags'] = items2[1].text_content().split(',')
+        data['genres'] = items2[1].text_content().split(',')
 
         description_block = document.xpath('//div[@class="description"]')[0]
 
-        data['description'] = unicode(description_block.xpath('div[@class="infotext"]')[0].text_content())
+        data['summary'] = unicode(description_block.xpath('div[@class="infotext"]')[0].text_content())
 
         data['rating'] = float(document.xpath('//div[@class="nvz"]/meta')[1].get('content'))
 
         return data
 
     def retrieve_urls(self, url, season=None, episode=None):
+        if url.find(self.URL) < 0:
+            url = self.URL + url
+
         document = self.get_movie_document(url, season=season, episode=episode)
         content = tostring(document.xpath('body')[0])
 
@@ -338,26 +342,6 @@ class GidOnlineService(MwService):
 
         return new_list
 
-    def convert_duration(self, s):
-        tokens = s.split(' ')
-
-        result = []
-
-        for token in tokens:
-            data = re.search('(\d+)', token)
-
-            if data:
-                result.append(data.group(0))
-
-        if len(result) == 2:
-            hours = int(result[0])
-            minutes = int(result[1])
-        else:
-            hours = 0
-            minutes = int(result[0])
-
-        return hours * 60 + minutes
-
     def fix_path(self, list):
         for item in list:
             item['path'] = item['path'][len(self.URL):]
@@ -402,3 +386,23 @@ class GidOnlineService(MwService):
             thumb = path
 
         return thumb
+
+    def convert_duration(self, s):
+        tokens = s.split(' ')
+
+        result = []
+
+        for token in tokens:
+            data = re.search('(\d+)', token)
+
+            if data:
+                result.append(data.group(0))
+
+        if len(result) == 2:
+            hours = int(result[0])
+            minutes = int(result[1])
+        else:
+            hours = 0
+            minutes = int(result[0])
+
+        return hours * 60 * 60 + minutes * 60

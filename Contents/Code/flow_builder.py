@@ -41,6 +41,12 @@ class FlowBuilder():
         if 'video_resolution' in params.keys():
             media_object.video_resolution = params['video_resolution']
 
+        if 'width' in params.keys():
+            media_object.video_resolution = params['width']
+
+        if 'height' in params.keys():
+            media_object.video_resolution = params['height']
+
         media_object.parts = [part_object]
 
         return media_object
