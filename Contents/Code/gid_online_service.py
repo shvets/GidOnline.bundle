@@ -394,3 +394,11 @@ class GidOnlineService(MwService):
             return '%s?season=%d&episode=%d' % (url, int(season), int(episode))
 
         return url
+
+    def get_thumb(self, path):
+        if path.find(self.URL) < 0:
+            thumb = self.URL + path
+        else:
+            thumb = path
+
+        return thumb
