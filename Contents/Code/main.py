@@ -456,6 +456,7 @@ def MetadataObjectForURL(path, title, name, thumb, season, episode, urls):
     video.rating = data['rating']
     video.thumb = data['thumb']
     video.art = data['thumb']
+    video.art = data['thumb']
     video.tags = data['tags']
     video.duration = data['duration'] * 1000
     video.summary = data['summary']
