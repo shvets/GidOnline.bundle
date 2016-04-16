@@ -33,8 +33,8 @@ def MainMenu():
     oc.add(DirectoryObject(key=Callback(main.HandleGenres, title=unicode(L("Genres"))), title=unicode(L("Genres"))))
     oc.add(DirectoryObject(key=Callback(main.HandleSections, title=unicode(L("Sections"))), title=unicode(L("Sections"))))
     oc.add(DirectoryObject(key=Callback(main.HandleThemes, title=unicode(L("Themes"))), title=unicode(L("Themes"))))
-    oc.add(DirectoryObject(key=Callback(main.HandleQueue), title=unicode(L('Queue'))))
     oc.add(DirectoryObject(key=Callback(main.HandleHistory), title=unicode(L("History"))))
+    oc.add(DirectoryObject(key=Callback(main.HandleQueue), title=unicode(L('Queue'))))
     oc.add(InputDirectoryObject(key=Callback(main.HandleSearch), title=unicode(L("Search")), thumb=R(constants.SEARCH_ICON)))
 
     return oc

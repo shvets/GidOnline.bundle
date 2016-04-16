@@ -238,7 +238,7 @@ def HandleSeasons(path, title, name, thumb):
         "thumb": thumb
     }
 
-    service.queue.append_queue_controls(oc, media_info,
+    service.queue.append_controls(oc, media_info,
         add_bookmark_handler=HandleAddBookmark,
         remove_bookmark_handler=HandleRemoveBookmark
     )
@@ -271,7 +271,7 @@ def HandleEpisodes(path, title, name, thumb, season, container=False):
         "season": season
     }
 
-    service.queue.append_queue_controls(oc, media_info,
+    service.queue.append_controls(oc, media_info,
         add_bookmark_handler=HandleAddBookmark,
         remove_bookmark_handler=HandleRemoveBookmark
     )
@@ -301,7 +301,7 @@ def HandleMovie(path, title, name, thumb, season=None, episode=None, container=F
 
         if str(container) == 'False':
             history.push_to_history(media_info)
-            service.queue.append_queue_controls(oc, media_info,
+            service.queue.append_controls(oc, media_info,
                 add_bookmark_handler=HandleAddBookmark,
                 remove_bookmark_handler=HandleRemoveBookmark
             )
