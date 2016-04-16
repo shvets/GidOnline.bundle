@@ -75,7 +75,7 @@ pip install lxml
 invoke build
 ```
 
-After this command folder 'build' will have 'Etvnet.bundle.zip' archive.
+After this command folder 'build' will have 'GidOnline.bundle.zip' archive.
 
 You need to extract this archive into the <plugins_home>:
 
@@ -109,10 +109,10 @@ env USERNAME=user HOSTNAME=remote_host invoke rdeploy
 # Plugin Location
 
 - Ubuntu:
-/var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/Etvnet.bundle/
+/var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/GidOnline.bundle/
 
 - OSX:
-~/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/Etvnet.bundle/
+~/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/GidOnline.bundle/
 
 
 # Useful Plugins/Projects
