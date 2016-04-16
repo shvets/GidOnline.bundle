@@ -210,8 +210,14 @@ def HandleContainer(path, title, name, thumb):
     else:
         return HandleMovie(path=path, title=title, name=name, thumb=thumb)
 
-def HandleSeasons(path, title, name, thumb):
+@route(constants.PREFIX + '/seasons')
+def HandleSeasons(path, title, name, thumb, operation=None):
     oc = ObjectContainer(title2=unicode(title))
+
+    if operation == 'add':
+        service.queue.add_bookmark(path=path, title=title, name=name, thumb=thumb)
+    elif operation == 'remove':
+        service.queue.remove_bookmark(path=path, title=title, name=name, thumb=thumb)
 
     document = service.get_movie_document(path)
     serial_info = service.get_serial_info(document)
@@ -238,16 +244,18 @@ def HandleSeasons(path, title, name, thumb):
         "thumb": thumb
     }
 
-    service.queue.append_controls(oc, media_info,
-        add_bookmark_handler=HandleAddBookmark,
-        remove_bookmark_handler=HandleRemoveBookmark
-    )
+    service.queue.append_controls(oc, HandleSeasons, path=path, title=title, name=name, thumb=thumb)
 
     return oc
 
 @route(constants.PREFIX + '/episodes', container=bool)
-def HandleEpisodes(path, title, name, thumb, season, container=False):
+def HandleEpisodes(path, title, name, thumb, season, operation=None, container=False):
     oc = ObjectContainer(title2=unicode(title + ': ' + name))
+
+    if operation == 'add':
+        service.queue.add_bookmark(path=path, title=title, name=name, thumb=thumb, season=season)
+    elif operation == 'remove':
+        service.queue.remove_bookmark(path=path, title=title, name=name, thumb=thumb, season=season)
 
     document = service.get_movie_document(path, season, 1)
     serial_info = service.get_serial_info(document)
@@ -263,48 +271,30 @@ def HandleEpisodes(path, title, name, thumb, season, container=False):
 
         oc.add(DirectoryObject(key=key, title=unicode(episode_name)))
 
-    media_info = {
-        "path": path,
-        "title": title,
-        "name": title + ': ' + name,
-        "thumb": thumb,
-        "season": season
-    }
-
-    service.queue.append_controls(oc, media_info,
-        add_bookmark_handler=HandleAddBookmark,
-        remove_bookmark_handler=HandleRemoveBookmark
-    )
+    service.queue.append_controls(oc, HandleEpisodes, path=path, title=title, name=name, thumb=thumb, season=season)
 
     return oc
 
 @route(constants.PREFIX + '/movie', container=bool)
-def HandleMovie(path, title, name, thumb, season=None, episode=None, container=False, **params):
+def HandleMovie(path, title, name, thumb, season=None, episode=None, operation=None, container=False):
     urls = service.retrieve_urls(path, season=season, episode=episode)
 
     if not urls:
         return util.no_contents()
     else:
-        media_info = {
-            "path": path,
-            "title": title,
-            "name": name,
-            "thumb": thumb,
-            "season": season,
-            "episode": episode
-        }
-
         oc = ObjectContainer(title2=unicode(name))
+
+        if operation == 'add':
+            service.queue.add_bookmark(path=path, title=title, name=name, thumb=thumb, season=season, episode=episode)
+        elif operation == 'remove':
+            service.queue.remove_bookmark(path=path, title=title, name=name, thumb=thumb, season=season, episode=episode)
 
         oc.add(MetadataObjectForURL(path=path, title=title, name=name, thumb=thumb,
                                     season=season, episode=episode, urls=urls))
 
         if str(container) == 'False':
-            history.push_to_history(media_info)
-            service.queue.append_controls(oc, media_info,
-                add_bookmark_handler=HandleAddBookmark,
-                remove_bookmark_handler=HandleRemoveBookmark
-            )
+            history.push_to_history(path=path, title=title, name=name, thumb=thumb, season=season, episode=episode)
+            service.queue.append_controls(oc, HandleMovie, path=path, title=title, name=name, thumb=thumb, season=season, episode=episode)
 
         return oc
 

@@ -1,18 +1,18 @@
 KEY_HISTORY = 'history'
 HISTORY_SIZE = 60
 
-def push_to_history(item):
+def push_to_history(**params):
     history = Data.LoadObject(KEY_HISTORY)
 
     if not history:
         history = {}
 
-    history[item['path']] = {
-        'path': item['path'],
-        'title': item['title'],
-        'thumb': item['thumb'],
-        'season': item['season'],
-        'episode': item['episode'],
+    history[params['path']] = {
+        'path': params['path'],
+        'title': params['title'],
+        'thumb': params['thumb'],
+        'season': params['season'],
+        'episode': params['episode'],
         'time': Datetime.TimestampFromDatetime(Datetime.Now()),
     }
 
