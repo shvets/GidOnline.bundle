@@ -29,12 +29,13 @@ def MainMenu():
 
     oc.http_cookies = HTTP.CookiesForURL(service.URL)
 
-    oc.add(DirectoryObject(key=Callback(main.HandleMovies, title=unicode(L("Movies"))), title=unicode(L("Movies"))))
-    oc.add(DirectoryObject(key=Callback(main.HandleGenres, title=unicode(L("Genres"))), title=unicode(L("Genres"))))
-    oc.add(DirectoryObject(key=Callback(main.HandleSections, title=unicode(L("Sections"))), title=unicode(L("Sections"))))
-    oc.add(DirectoryObject(key=Callback(main.HandleThemes, title=unicode(L("Themes"))), title=unicode(L("Themes"))))
-    oc.add(DirectoryObject(key=Callback(main.HandleHistory), title=unicode(L("History"))))
-    oc.add(DirectoryObject(key=Callback(main.HandleQueue), title=unicode(L('Queue'))))
-    oc.add(InputDirectoryObject(key=Callback(main.HandleSearch), title=unicode(L("Search")), thumb=R(constants.SEARCH_ICON)))
+    oc.add(DirectoryObject(key=Callback(main.HandleMovies, title=L("Movies")), title=unicode(L("Movies"))))
+    oc.add(DirectoryObject(key=Callback(main.HandleGenres, title=L("Genres")), title=unicode(L("Genres"))))
+    oc.add(DirectoryObject(key=Callback(main.HandleSections, title=L("Sections")), title=unicode(L("Sections"))))
+    oc.add(DirectoryObject(key=Callback(main.HandleThemes, title=L("Themes")), title=unicode(L("Themes"))))
+    oc.add(DirectoryObject(key=Callback(main.HandleHistory), title=L("History")))
+    oc.add(DirectoryObject(key=Callback(main.HandleQueue), title=L('Queue')))
+
+    oc.add(InputDirectoryObject(key=Callback(main.HandleSearch), title=L("Search"), thumb=R(constants.SEARCH_ICON)))
 
     return oc

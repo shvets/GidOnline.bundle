@@ -26,9 +26,9 @@ def HandleSections(title):
 def HandleThemes(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
-    oc.add(DirectoryObject(key=Callback(HandleTopSeven, title=unicode(L("Top Seven"))), title=unicode(L("Top Seven"))))
-    oc.add(DirectoryObject(key=Callback(HandleNewMovies, title=unicode(L("New Movies"))), title=unicode(L("New Movies"))))
-    oc.add(DirectoryObject(key=Callback(HandlePremiers, title=unicode(L("Premiers"))), title=unicode(L("Premiers"))))
+    oc.add(DirectoryObject(key=Callback(HandleTopSeven, title=L("Top Seven")), title=unicode(L("Top Seven"))))
+    oc.add(DirectoryObject(key=Callback(HandleNewMovies, title=L("New Movies")), title=unicode(L("New Movies"))))
+    oc.add(DirectoryObject(key=Callback(HandlePremiers, title=L("Premiers")), title=unicode(L("Premiers"))))
 
     return oc
 
@@ -94,12 +94,12 @@ def HandleTopSeven(title):
 
     for genre in service.get_top_links(document):
         path = genre['path']
-        title = genre['name']
+        name = genre['name']
         thumb = genre['thumb']
 
-        key = Callback(HandleMovie, path=path, title=title, name=title, thumb=thumb)
+        key = Callback(HandleMovie, path=path, title=name, name=name, thumb=thumb)
 
-        oc.add(DirectoryObject(key=key, title=title, thumb=thumb))
+        oc.add(DirectoryObject(key=key, title=name, thumb=thumb))
 
     return oc
 
@@ -133,11 +133,11 @@ def HandleActorsLetter(title, letter):
 
     for item in service.get_actors(document=document, letter=letter):
         path = item['path']
-        title = item['name']
+        name = item['name']
 
-        key = Callback(HandleMovies, path=path, title=title)
+        key = Callback(HandleMovies, path=path, title=name)
 
-        oc.add(DirectoryObject(key=key, title=title))
+        oc.add(DirectoryObject(key=key, title=name))
 
     return oc
 
@@ -163,11 +163,11 @@ def HandleDirectorsLetter(title, letter):
 
     for item in service.get_directors(document=document, letter=letter):
         path = item['path']
-        title = item['name']
+        name = item['name']
 
-        key = Callback(HandleMovies, path=path, title=title)
+        key = Callback(HandleMovies, path=path, title=name)
 
-        oc.add(DirectoryObject(key=key, title=title))
+        oc.add(DirectoryObject(key=key, title=name))
 
     return oc
 
@@ -179,11 +179,11 @@ def HandleCountries(title):
 
     for item in service.get_countries(document):
         path = item['path']
-        title = item['name']
+        name = item['name']
 
-        key = Callback(HandleMovies, path=path, title=title)
+        key = Callback(HandleMovies, path=path, title=name)
 
-        oc.add(DirectoryObject(key=key, title=title))
+        oc.add(DirectoryObject(key=key, title=name))
 
     return oc
 
@@ -195,11 +195,11 @@ def HandleYears(title):
 
     for item in service.get_years(document):
         path = item['path']
-        title = item['name']
+        name = item['name']
 
-        key = Callback(HandleMovies, path=path, title=title)
+        key = Callback(HandleMovies, path=path, title=name)
 
-        oc.add(DirectoryObject(key=key, title=title))
+        oc.add(DirectoryObject(key=key, title=name))
 
     return oc
 
@@ -236,13 +236,6 @@ def HandleSeasons(path, title, name, thumb, operation=None):
             thumb=thumb,
             # summary=data['summary']
         ))
-
-    media_info = {
-        "path": path,
-        "title": title,
-        "name": title,
-        "thumb": thumb
-    }
 
     service.queue.append_controls(oc, HandleSeasons, path=path, title=title, name=name, thumb=thumb)
 
@@ -317,11 +310,11 @@ def BuildSearchActors(oc, document, query):
 
     for item in response:
         path = item['path']
-        title = item['name']
+        name = item['name']
 
-        key = Callback(HandleMovies, path=path, title=title)
+        key = Callback(HandleMovies, path=path, title=name)
 
-        oc.add(DirectoryObject(key=key, title=title))
+        oc.add(DirectoryObject(key=key, title=name))
 
 def BuildSearchDirectors(oc, document, query):
     response = service.search_directors(document=document, query=query)
@@ -339,22 +332,22 @@ def BuildSearchCountries(oc, document, query):
 
     for item in response:
         path = item['path']
-        title = item['name']
+        name = item['name']
 
-        key = Callback(HandleMovies, path=path, title=title)
+        key = Callback(HandleMovies, path=path, title=name)
 
-        oc.add(DirectoryObject(key=key, title=title))
+        oc.add(DirectoryObject(key=key, title=name))
 
 def BuildSearchYears(oc, document, query):
     response = service.search_years(document=document, query=query)
 
     for item in response:
         path = item['path']
-        title = item['name']
+        name = item['name']
 
-        key = Callback(HandleMovies, path=path, title=title)
+        key = Callback(HandleMovies, path=path, title=name)
 
-        oc.add(DirectoryObject(key=key, title=title))
+        oc.add(DirectoryObject(key=key, title=name))
 
 def BuildSearchMovies(oc, page, query):
     response = service.search(query=query, page=page)
@@ -382,11 +375,9 @@ def HandleHistory():
             title = item['title']
             thumb = service.get_thumb(item['thumb'])
 
-            oc.add(DirectoryObject(
-                key=Callback(HandleContainer, path=path, title=title, name=title, thumb=thumb),
-                title=unicode(title),
-                thumb=thumb
-            ))
+            key = Callback(HandleContainer, path=path, title=title, name=title, thumb=thumb)
+
+            oc.add(DirectoryObject(key=key, title=unicode(title), thumb=thumb))
 
     return oc
 
@@ -480,7 +471,6 @@ def MediaObjectsForURL(urls):
         media_object = builder.build_media_object(play_callback, video_resolution=item['height'],
                                                   width=item['width'], height=item['height'],
                                                   bitrate=item['bandwidth'])
-
         items.append(media_object)
 
     return items
