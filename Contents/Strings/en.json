@@ -13,6 +13,7 @@
   "By Years": "By Years",
   "Letter": "Letter",
   "Queue": "Queue",
+  "Clear Queue": "Clear Queue",
   "History": "History",
   "Seasons": "Seasons",
   "Search": "Search",
@@ -27,7 +28,5 @@
   "Education": "Education",
 
   "Add Bookmark": "Add Bookmark",
-  "Remove Bookmark": "Remove Bookmark",
-  "Bookmark Added": "Bookmark Added.",
-  "Bookmark Removed": "Bookmark Removed."
+  "Remove Bookmark": "Remove Bookmark"
 }

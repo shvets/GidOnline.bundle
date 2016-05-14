@@ -14,7 +14,7 @@ else:
 if 'HOSTNAME' in os.environ:
     hostname = os.environ['HOSTNAME']
 else:
-    hostname = '10.0.1.37'
+    hostname = '10.0.1.60'
 
 plugin_name = 'gidonline'
 bundle_name = 'GidOnline.bundle'
@@ -66,8 +66,10 @@ def reset():
 @task
 def copy(plugin_dir):
     run("mkdir -p " + plugin_dir + "/Contents/Code")
+    run("mkdir -p " + plugin_dir + "/Contents/Code/common")
 
     run("cp -R Contents/* " + plugin_dir + "/Contents")
+    run("cp -R Contents/Code/common/* " + plugin_dir + "/Contents/Code/common")
 
     print("Files were copied.")
 

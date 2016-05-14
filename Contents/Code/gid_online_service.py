@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import urlparse
 import re
 import operator
@@ -8,6 +10,9 @@ from mw_service import MwService
 
 class GidOnlineService(MwService):
     URL = "http://gidonline.club"
+
+    CYRILLIC_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С',
+                        'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я']
 
     def get_page_url(self, path, page=1):
         url = self.URL

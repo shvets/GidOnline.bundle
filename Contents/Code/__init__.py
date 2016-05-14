@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import util
+
+util.add_library("common")
+
 import constants
 
-from plex_service import PlexService
+from gid_online_plex_service import GidOnlinePlexService
 
-service = PlexService()
+service = GidOnlinePlexService()
 
 import main
 
@@ -33,9 +36,9 @@ def MainMenu():
     oc.add(DirectoryObject(key=Callback(main.HandleGenres, title=L("Genres")), title=unicode(L("Genres"))))
     oc.add(DirectoryObject(key=Callback(main.HandleSections, title=L("Sections")), title=unicode(L("Sections"))))
     oc.add(DirectoryObject(key=Callback(main.HandleThemes, title=L("Themes")), title=unicode(L("Themes"))))
-    oc.add(DirectoryObject(key=Callback(main.HandleHistory), title=L("History")))
-    oc.add(DirectoryObject(key=Callback(main.HandleQueue), title=L('Queue')))
+    oc.add(DirectoryObject(key=Callback(main.HandleHistory), title=unicode(L("History"))))
+    oc.add(DirectoryObject(key=Callback(main.HandleQueue), title=unicode(L('Queue'))))
 
-    oc.add(InputDirectoryObject(key=Callback(main.HandleSearch), title=L("Search"), thumb=R(constants.SEARCH_ICON)))
+    oc.add(InputDirectoryObject(key=Callback(main.HandleSearch), title=unicode(L("Search")), thumb=R(constants.SEARCH_ICON)))
 
     return oc
