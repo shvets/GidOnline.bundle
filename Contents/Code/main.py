@@ -39,7 +39,6 @@ def HandleMovies(title, path=None, page=1):
     response = service.get_movies(document, path)
 
     for movie in response['movies']:
-        Log(movie)
         name = movie['name']
         thumb = movie['thumb']
 
@@ -462,6 +461,8 @@ def HandleContainer(**params):
     type = params['type']
 
     if type == 'movie':
+        return HandleMovie(**params)
+    elif type == 'episode':
         return HandleMovie(**params)
     elif type == 'season':
         return HandleSeason(**params)

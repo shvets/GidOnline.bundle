@@ -52,7 +52,15 @@ class MediaInfoStorage(FileStorage):
         bookmark = self.find(item)
 
         if bookmark:
-            Storage.remove(self, item)
+            item_to_delete = None
+
+            for it in self.data:
+                if it['id'] == item['id']:
+                    item_to_delete = it
+                    break
+
+            if item_to_delete:
+                Storage.remove(self, item_to_delete)
 
             self.save()
 

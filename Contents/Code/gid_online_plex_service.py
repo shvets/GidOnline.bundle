@@ -8,5 +8,6 @@ class GidOnlinePlexService(GidOnlineService):
         self.queue = GidOnlinePlexStorage(storage_name)
 
         self.queue.register_simple_type('movie')
+        self.queue.register_simple_type('episode')
         self.queue.register_simple_type('season')
         self.queue.register_simple_type('serie')
