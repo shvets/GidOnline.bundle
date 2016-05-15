@@ -1,9 +1,25 @@
 # -*- coding: utf-8 -*-
 
+import library_bridge
+
+library_bridge.bridge.export_object('R', R)
+library_bridge.bridge.export_object('Log', Log)
+library_bridge.bridge.export_object('Datetime', Datetime)
+library_bridge.bridge.export_object('Core', Core)
+library_bridge.bridge.export_object('Callback', Callback)
+library_bridge.bridge.export_object('AudioCodec', AudioCodec)
+library_bridge.bridge.export_object('AudioStreamObject', AudioStreamObject)
+library_bridge.bridge.export_object('VideoStreamObject', VideoStreamObject)
+library_bridge.bridge.export_object('DirectoryObject', DirectoryObject)
+library_bridge.bridge.export_object('PartObject', PartObject)
+library_bridge.bridge.export_object('MediaObject', MediaObject)
+library_bridge.bridge.export_object('EpisodeObject', EpisodeObject)
+library_bridge.bridge.export_object('TVShowObject', TVShowObject)
+library_bridge.bridge.export_object('MovieObject', MovieObject)
+library_bridge.bridge.export_object('TrackObject', TrackObject)
+library_bridge.bridge.export_object('VideoClipObject', VideoClipObject)
+
 import util
-
-util.add_library("common")
-
 import constants
 
 from gid_online_plex_service import GidOnlinePlexService

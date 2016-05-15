@@ -1,3 +1,16 @@
+import library_bridge
+
+AudioStreamObject = library_bridge.bridge.objects['AudioStreamObject']
+AudioCodec = library_bridge.bridge.objects['AudioCodec']
+VideoStreamObject = library_bridge.bridge.objects['VideoStreamObject']
+PartObject = library_bridge.bridge.objects['PartObject']
+MediaObject = library_bridge.bridge.objects['MediaObject']
+EpisodeObject = library_bridge.bridge.objects['EpisodeObject']
+TVShowObject = library_bridge.bridge.objects['TVShowObject']
+MovieObject = library_bridge.bridge.objects['MovieObject']
+TrackObject = library_bridge.bridge.objects['TrackObject']
+VideoClipObject = library_bridge.bridge.objects['VideoClipObject']
+
 class FlowBuilder():
     def build_media_object(self, play_callback, config):
         if config is None:

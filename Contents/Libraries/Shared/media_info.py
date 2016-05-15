@@ -8,5 +8,5 @@ class MediaInfo(dict):
             self[key] = value
 
     def value(self, name):
-        if name  in self:
+        if name in self:
             return self[name]

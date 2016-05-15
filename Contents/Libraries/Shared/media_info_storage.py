@@ -1,6 +1,10 @@
 from storage import Storage
 from file_storage import FileStorage
 
+import library_bridge
+
+Log = library_bridge.bridge.objects['Log']
+
 class MediaInfoStorage(FileStorage):
     def __init__(self, file_name):
         FileStorage.__init__(self, file_name)

@@ -1,3 +1,7 @@
+import library_bridge
+
+Datetime = library_bridge.bridge.objects['Datetime']
+
 KEY_HISTORY = 'history'
 HISTORY_SIZE = 60
 

@@ -57,15 +57,6 @@ def HandleMovies(title, path=None, page=1):
 
     return oc
 
-@route(constants.PREFIX + '/movie_or_serie')
-def HandleMovieOrSerie(**params):
-    if service.is_serial(params['id']):
-        params['type'] = 'serie'
-        return HandleSerie(**params)
-    else:
-        params['type'] = 'movie'
-        return HandleMovie(**params)
-
 @route(constants.PREFIX + '/genres')
 def HandleGenres(title):
     oc = ObjectContainer(title2=unicode(title))
@@ -224,16 +215,22 @@ def HandleYears(title):
 
     return oc
 
+@route(constants.PREFIX + '/movie_or_serie')
+def HandleMovieOrSerie(**params):
+    if service.is_serial(params['id']):
+        params['type'] = 'serie'
+        return HandleSerie(**params)
+    else:
+        params['type'] = 'movie'
+        return HandleMovie(**params)
+
 @route(constants.PREFIX + '/serie')
 def HandleSerie(operation=None, **params):
     oc = ObjectContainer(title2=unicode(params['title']))
 
     media_info = MediaInfo(**params)
 
-    if operation == 'add':
-        service.queue.add(media_info)
-    elif operation == 'remove':
-        service.queue.remove(media_info)
+    service.handle_bookmark_operation(operation, media_info)
 
     document = service.get_movie_document(params['id'])
     serial_info = service.get_serial_info(document)
@@ -261,7 +258,7 @@ def HandleSerie(operation=None, **params):
             # summary=data['summary']
         ))
 
-    service.queue.append_controls(oc, HandleSerie, media_info)
+    service.append_bookmark_controls(oc, HandleSerie, media_info)
 
     return oc
 
@@ -271,10 +268,7 @@ def HandleSeason(operation=None, container=False, **params):
 
     media_info = MediaInfo(**params)
 
-    if operation == 'add':
-        service.queue.add(media_info)
-    elif operation == 'remove':
-        service.queue.remove(media_info)
+    service.handle_bookmark_operation(operation, media_info)
 
     document = service.get_movie_document(params['id'], params['season'], 1)
     serial_info = service.get_serial_info(document)
@@ -283,7 +277,7 @@ def HandleSeason(operation=None, container=False, **params):
         episode_name = serial_info['episodes'][episode]
 
         new_params = {
-            'type': 'movie',
+            'type': 'episode',
             'id': params['id'],
             'title': unicode(params['title'] + ': ' + params['name'] + ': ' + episode_name),
             'name': params['title'] + ': ' + params['name'],
@@ -296,21 +290,21 @@ def HandleSeason(operation=None, container=False, **params):
 
         oc.add(DirectoryObject(key=key, title=unicode(episode_name)))
 
-    service.queue.append_controls(oc, HandleSeason, media_info)
+    service.append_bookmark_controls(oc, HandleSeason, media_info)
 
     return oc
 
 @route(constants.PREFIX + '/movie', container=bool)
-def HandleMovie(season=None, episode=None, operation=None, container=False, **params):
-    # if 'season' in params:
-    #     season = params['season']
-    # else:
-    #     season = None
-    #
-    # if 'episode' in params:
-    #     episode = params['episode']
-    # else:
-    #     episode = None
+def HandleMovie(operation=None, container=False, **params):
+    if 'season' in params:
+        season = params['season']
+    else:
+        season = None
+
+    if 'episode' in params:
+        episode = params['episode']
+    else:
+        episode = None
 
     urls = service.retrieve_urls(params['id'], season=season, episode=episode)
 
@@ -321,10 +315,7 @@ def HandleMovie(season=None, episode=None, operation=None, container=False, **pa
 
         media_info = MediaInfo(**params)
 
-        if operation == 'add':
-            service.queue.add(media_info)
-        elif operation == 'remove':
-            service.queue.remove(media_info)
+        service.handle_bookmark_operation(operation, media_info)
 
         document = service.fetch_document(params['id'])
         data = service.get_media_data(document)
@@ -374,7 +365,7 @@ def HandleMovie(season=None, episode=None, operation=None, container=False, **pa
 
         if str(container) == 'False':
             history.push_to_history(Data, media_info)
-            service.queue.append_controls(oc, HandleMovie, media_info)
+            service.append_bookmark_controls(oc, HandleMovie, media_info)
 
         return oc
 
@@ -444,7 +435,6 @@ def BuildSearchMovies(oc, page, query):
         thumb = movie['thumb']
 
         new_params = {
-            'type': 'movie',
             'id': movie['path'],
             'title': name,
             'name': name,
