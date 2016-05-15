@@ -43,7 +43,6 @@ def HandleMovies(title, path=None, page=1):
         thumb = movie['thumb']
 
         new_params = {
-            'type': 'movie',
             'id': movie['path'],
             'title': name,
             'name': name,
@@ -64,6 +63,7 @@ def HandleMovieOrSerie(**params):
         params['type'] = 'serie'
         return HandleSerie(**params)
     else:
+        params['type'] = 'movie'
         return HandleMovie(**params)
 
 @route(constants.PREFIX + '/genres')
@@ -301,16 +301,16 @@ def HandleSeason(operation=None, container=False, **params):
     return oc
 
 @route(constants.PREFIX + '/movie', container=bool)
-def HandleMovie(operation=None, container=False, **params):
-    if 'season' in params:
-        season = params['season']
-    else:
-        season = None
-
-    if 'episode' in params:
-        episode = params['episode']
-    else:
-        episode = None
+def HandleMovie(season=None, episode=None, operation=None, container=False, **params):
+    # if 'season' in params:
+    #     season = params['season']
+    # else:
+    #     season = None
+    #
+    # if 'episode' in params:
+    #     episode = params['episode']
+    # else:
+    #     episode = None
 
     urls = service.retrieve_urls(params['id'], season=season, episode=episode)
 
