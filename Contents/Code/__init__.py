@@ -2,6 +2,7 @@
 
 import library_bridge
 
+library_bridge.bridge.export_object('L', L)
 library_bridge.bridge.export_object('R', R)
 library_bridge.bridge.export_object('Log', Log)
 library_bridge.bridge.export_object('Datetime', Datetime)
@@ -17,6 +18,7 @@ library_bridge.bridge.export_object('EpisodeObject', EpisodeObject)
 library_bridge.bridge.export_object('TVShowObject', TVShowObject)
 library_bridge.bridge.export_object('MovieObject', MovieObject)
 library_bridge.bridge.export_object('TrackObject', TrackObject)
+library_bridge.bridge.export_object('VideoClipObject', VideoClipObject)
 library_bridge.bridge.export_object('VideoClipObject', VideoClipObject)
 
 import util
