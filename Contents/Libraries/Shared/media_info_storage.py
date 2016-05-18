@@ -15,6 +15,28 @@ class MediaInfoStorage(FileStorage):
         if name not in self.simple_types:
             return self.simple_types.append(name)
 
+    def getItemName(self, media_info):
+        type = media_info['type']
+
+        if type == 'episode':
+            if 'serieName' in media_info:
+                name = "+ " + media_info['season'] + ", " + media_info['episodeNumber'] + " " + media_info['serieName']
+            else:
+                name = "+ " + media_info['season'] + ", " + media_info['episodeNumber'] + " " + media_info['name']
+
+        elif type == 'season':
+            if 'serieName' in media_info:
+                name = "+ " + media_info['season'] + " " + media_info['serieName']
+            else:
+                name = "+ " + media_info['season'] + " " + media_info['name']
+
+        elif type == 'serie':
+            name = "+ " + media_info['name']
+        else:
+            name = media_info['name']
+
+        return name
+
     def find(self, search_item):
         MediaInfoStorage.sanitize(search_item)
 
@@ -26,13 +48,14 @@ class MediaInfoStorage(FileStorage):
             if item['id'] == search_item['id']:
                 if type in self.simple_types and item['type'] == search_item['type']:
                     found = item
+                    break
 
                 elif type == 'season':
                     if 'season' in item:
                         if item['season'] == search_item['season']:
                             if not 'episode' in item:
                                 found = item
-                    break
+                                break
 
                 elif type == 'episode':
                     if 'season' in item and 'season' in search_item:
@@ -40,7 +63,7 @@ class MediaInfoStorage(FileStorage):
                             if 'episode' in item and 'episode' in search_item:
                                 if item['episode'] == search_item['episode']:
                                     found = item
-                    break
+                                    break
 
         return found
 

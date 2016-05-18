@@ -19,7 +19,6 @@ library_bridge.bridge.export_object('TVShowObject', TVShowObject)
 library_bridge.bridge.export_object('MovieObject', MovieObject)
 library_bridge.bridge.export_object('TrackObject', TrackObject)
 library_bridge.bridge.export_object('VideoClipObject', VideoClipObject)
-library_bridge.bridge.export_object('VideoClipObject', VideoClipObject)
 
 import util
 import constants

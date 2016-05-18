@@ -243,7 +243,7 @@ def HandleSerie(operation=None, **params):
         new_params = {
             'type': 'season',
             'id': params['id'],
-            'title': params['name'],
+            'serieName': params['name'],
             'name': season_name,
             'thumb': params['thumb'],
             'season': season
@@ -254,7 +254,7 @@ def HandleSerie(operation=None, **params):
             rating_key=rating_key,
             index=int(season),
             source_title=source_title,
-            thumb=params['thumb'],
+            thumb=params['thumb']
             # summary=data['summary']
         ))
 
@@ -273,17 +273,19 @@ def HandleSeason(operation=None, container=False, **params):
     document = service.get_movie_document(params['id'], params['season'], 1)
     serial_info = service.get_serial_info(document)
 
-    for episode in sorted(serial_info['episodes'].keys()):
+    for index, episode in enumerate(sorted(serial_info['episodes'].keys())):
         episode_name = serial_info['episodes'][episode]
 
         new_params = {
             'type': 'episode',
             'id': params['id'],
-            'title': unicode(params['title'] + ': ' + params['name'] + ': ' + episode_name),
+            'serieName': params['serieName'],
+            #'title': unicode(params['title'] + ': ' + params['name'] + ': ' + episode_name),
             'name': params['title'] + ': ' + params['name'],
             'thumb': params['thumb'],
             'season': params['season'],
-            'episode': episode
+            'episode': episode,
+            'episodeNumber': index + 1
         }
 
         key = Callback(HandleMovie, container=container, **new_params)
