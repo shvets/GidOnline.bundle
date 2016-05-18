@@ -264,7 +264,7 @@ def HandleSerie(operation=None, **params):
 
 @route(constants.PREFIX + '/season', container=bool)
 def HandleSeason(operation=None, container=False, **params):
-    oc = ObjectContainer(title2=unicode(params['title'] + ': ' + params['name']))
+    oc = ObjectContainer(title2=unicode(params['serieName'] + ': ' + params['name']))
 
     media_info = MediaInfo(**params)
 
@@ -280,8 +280,7 @@ def HandleSeason(operation=None, container=False, **params):
             'type': 'episode',
             'id': params['id'],
             'serieName': params['serieName'],
-            #'title': unicode(params['title'] + ': ' + params['name'] + ': ' + episode_name),
-            'name': params['title'] + ': ' + params['name'],
+            'name': params['name'],
             'thumb': params['thumb'],
             'season': params['season'],
             'episode': episode,
@@ -473,7 +472,7 @@ def HandleQueue():
 
         oc.add(DirectoryObject(
             key=Callback(HandleContainer, **media_info),
-            title=util.sanitize(media_info['name']),
+            title=unicode(service.queue.getItemName(media_info)),
             thumb=thumb
         ))
 
