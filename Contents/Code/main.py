@@ -464,17 +464,7 @@ def HandleContainer(**params):
 def HandleQueue():
     oc = ObjectContainer(title2=unicode(L('Queue')))
 
-    for media_info in service.queue.data:
-        if 'thumb' in media_info:
-            thumb = media_info['thumb']
-        else:
-            thumb = None
-
-        oc.add(DirectoryObject(
-            key=Callback(HandleContainer, **media_info),
-            title=unicode(service.queue.getItemName(media_info)),
-            thumb=thumb
-        ))
+    service.queue.handle_queue_items(oc, HandleContainer, service.queue.data)
 
     if len(service.queue.data) > 0:
         oc.add(DirectoryObject(
@@ -497,12 +487,9 @@ def HandleHistory():
     oc = ObjectContainer(title2=unicode(L('History')))
 
     if history_object:
-        for item in sorted(history_object.values(), key=lambda k: k['time'], reverse=True):
-            oc.add(DirectoryObject(
-                key=Callback(HandleContainer, **item),
-                title=unicode(item['name']),
-                thumb=item['thumb']
-            ))
+        data = sorted(history_object.values(), key=lambda k: k['time'], reverse=True)
+
+        service.queue.handle_queue_items(oc, HandleContainer, data)
 
     return oc
 

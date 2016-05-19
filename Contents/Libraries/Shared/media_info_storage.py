@@ -15,7 +15,7 @@ class MediaInfoStorage(FileStorage):
         if name not in self.simple_types:
             return self.simple_types.append(name)
 
-    def getItemName(self, media_info):
+    def get_item_name(self, media_info):
         type = media_info['type']
 
         if type == 'episode':

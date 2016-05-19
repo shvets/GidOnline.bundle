@@ -51,3 +51,16 @@ class PlexStorage(MediaInfoStorage):
                 title=unicode(L('Add Bookmark')),
                 thumb=R(ADD_ICON)
             ))
+
+    def handle_queue_items(self, oc, queue_item_handler, media_info_list):
+        for media_info in media_info_list:
+            if 'thumb' in media_info:
+                thumb = media_info['thumb']
+            else:
+                thumb = None
+
+            oc.add(DirectoryObject(
+                key=Callback(queue_item_handler, **media_info),
+                title=unicode(self.get_item_name(media_info)),
+                thumb=thumb
+            ))
