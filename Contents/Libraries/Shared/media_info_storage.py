@@ -20,15 +20,15 @@ class MediaInfoStorage(FileStorage):
 
         if type == 'episode':
             if 'serieName' in media_info:
-                name = "+ " + media_info['season'] + ", " + str(media_info['episodeNumber']) + " " + media_info['serieName']
+                name = "+ " + str(media_info['season']) + ", " + str(media_info['episodeNumber']) + " " + media_info['serieName']
             else:
-                name = "+ " + media_info['season'] + ", " + str(media_info['episodeNumber']) + " " + media_info['name']
+                name = "+ " + str(media_info['season']) + ", " + str(media_info['episodeNumber']) + " " + media_info['name']
 
         elif type == 'season':
             if 'serieName' in media_info:
-                name = "+ " + media_info['season'] + " " + media_info['serieName']
+                name = "+ " + str(media_info['season']) + " " + media_info['serieName']
             else:
-                name = "+ " + media_info['season'] + " " + media_info['name']
+                name = "+ " + str( media_info['season']) + " " + media_info['name']
 
         elif type == 'serie':
             name = "+ " + media_info['name']

@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from media_info import MediaInfo
-import constants
-import util
+import plex_util
 from flow_builder import FlowBuilder
 import pagination
 import history
 
-builder = FlowBuilder()
-
-@route(constants.PREFIX + '/sections')
+@route(PREFIX + '/sections')
 def HandleSections(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -20,7 +17,7 @@ def HandleSections(title):
 
     return oc
 
-@route(constants.PREFIX + '/themes')
+@route(PREFIX + '/themes')
 def HandleThemes(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -30,7 +27,7 @@ def HandleThemes(title):
 
     return oc
 
-@route(constants.PREFIX + '/movies')
+@route(PREFIX + '/movies')
 def HandleMovies(title, path=None, page=1):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -57,7 +54,7 @@ def HandleMovies(title, path=None, page=1):
 
     return oc
 
-@route(constants.PREFIX + '/genres')
+@route(PREFIX + '/genres')
 def HandleGenres(title):
     oc = ObjectContainer(title2=unicode(title))
 
@@ -75,7 +72,7 @@ def HandleGenres(title):
 
     return oc
 
-@route(constants.PREFIX + '/genres_group')
+@route(PREFIX + '/genres_group')
 def HandleGenresGroup(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -91,7 +88,7 @@ def HandleGenresGroup(title):
 
     return oc
 
-@route(constants.PREFIX + '/top_seven')
+@route(PREFIX + '/top_seven')
 def HandleTopSeven(title):
     oc = ObjectContainer(title2=unicode(title))
 
@@ -115,15 +112,15 @@ def HandleTopSeven(title):
 
     return oc
 
-@route(constants.PREFIX + '/new_movies')
+@route(PREFIX + '/new_movies')
 def HandleNewMovies(title):
     return HandleMovies(title, path='/new/')
 
-@route(constants.PREFIX + '/premiers')
+@route(PREFIX + '/premiers')
 def HandlePremiers(title):
     return HandleMovies(title, path='/premiers/')
 
-@route(constants.PREFIX + '/actors')
+@route(PREFIX + '/actors')
 def HandleActors(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -137,7 +134,7 @@ def HandleActors(title):
 
     return oc
 
-@route(constants.PREFIX + '/actors_letter')
+@route(PREFIX + '/actors_letter')
 def HandleActorsLetter(title, letter):
     oc = ObjectContainer(title2=unicode(title))
 
@@ -153,7 +150,7 @@ def HandleActorsLetter(title, letter):
 
     return oc
 
-@route(constants.PREFIX + '/directors')
+@route(PREFIX + '/directors')
 def HandleDirectors(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -167,7 +164,7 @@ def HandleDirectors(title):
 
     return oc
 
-@route(constants.PREFIX + '/directors_letter')
+@route(PREFIX + '/directors_letter')
 def HandleDirectorsLetter(title, letter):
     oc = ObjectContainer(title2=unicode(title))
 
@@ -183,7 +180,7 @@ def HandleDirectorsLetter(title, letter):
 
     return oc
 
-@route(constants.PREFIX + '/countries')
+@route(PREFIX + '/countries')
 def HandleCountries(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -199,7 +196,7 @@ def HandleCountries(title):
 
     return oc
 
-@route(constants.PREFIX + '/years')
+@route(PREFIX + '/years')
 def HandleYears(title):
     oc = ObjectContainer(title2=unicode(title), view_group='List')
 
@@ -215,7 +212,7 @@ def HandleYears(title):
 
     return oc
 
-@route(constants.PREFIX + '/movie_or_serie')
+@route(PREFIX + '/movie_or_serie')
 def HandleMovieOrSerie(**params):
     if service.is_serial(params['id']):
         params['type'] = 'serie'
@@ -224,7 +221,7 @@ def HandleMovieOrSerie(**params):
         params['type'] = 'movie'
         return HandleMovie(**params)
 
-@route(constants.PREFIX + '/serie')
+@route(PREFIX + '/serie')
 def HandleSerie(operation=None, **params):
     oc = ObjectContainer(title2=unicode(params['title']))
 
@@ -262,7 +259,7 @@ def HandleSerie(operation=None, **params):
 
     return oc
 
-@route(constants.PREFIX + '/season', container=bool)
+@route(PREFIX + '/season', container=bool)
 def HandleSeason(operation=None, container=False, **params):
     oc = ObjectContainer(title2=unicode(params['serieName'] + ': ' + params['name']))
 
@@ -295,7 +292,7 @@ def HandleSeason(operation=None, container=False, **params):
 
     return oc
 
-@route(constants.PREFIX + '/movie', container=bool)
+@route(PREFIX + '/movie', container=bool)
 def HandleMovie(operation=None, container=False, **params):
     if 'season' in params:
         season = params['season']
@@ -310,7 +307,7 @@ def HandleMovie(operation=None, container=False, **params):
     urls = service.retrieve_urls(params['id'], season=season, episode=episode)
 
     if not urls:
-        return util.no_contents()
+        return plex_util.no_contents()
     else:
         oc = ObjectContainer(title2=unicode(params['name']))
 
@@ -370,7 +367,7 @@ def HandleMovie(operation=None, container=False, **params):
 
         return oc
 
-@route(constants.PREFIX + '/search')
+@route(PREFIX + '/search')
 def HandleSearch(query=None, page=1):
     oc = ObjectContainer(title2=unicode(L('Search')))
 
@@ -447,7 +444,7 @@ def BuildSearchMovies(oc, page, query):
 
     pagination.append_controls(oc, response, page=page, callback=HandleSearch, query=query)
 
-@route(constants.PREFIX + '/container')
+@route(PREFIX + '/container')
 def HandleContainer(**params):
     type = params['type']
 
@@ -460,7 +457,7 @@ def HandleContainer(**params):
     elif type == 'serie':
         return HandleSerie(**params)
 
-@route(constants.PREFIX + '/queue')
+@route(PREFIX + '/queue')
 def HandleQueue():
     oc = ObjectContainer(title2=unicode(L('Queue')))
 
@@ -474,13 +471,13 @@ def HandleQueue():
 
     return oc
 
-@route(constants.PREFIX + '/clear_queue')
+@route(PREFIX + '/clear_queue')
 def ClearQueue():
     service.queue.clear()
 
     return HandleQueue()
 
-@route(constants.PREFIX + '/history')
+@route(PREFIX + '/history')
 def HandleHistory():
     history_object = history.load_history(Data)
 
@@ -494,7 +491,7 @@ def HandleHistory():
     return oc
 
 def MetadataObjectForURL(media_info, url_items, player):
-    metadata_object = builder.build_metadata_object(media_type=media_info['type'], title=media_info['name'])
+    metadata_object = FlowBuilder.build_metadata_object(media_type=media_info['type'], title=media_info['name'])
 
     metadata_object.key = Callback(HandleMovie, container=True, **media_info)
 
@@ -526,17 +523,17 @@ def MediaObjectsForURL(url_items, player):
 
         play_callback = Callback(player, url=url)
 
-        media_object = builder.build_media_object(play_callback, config)
+        media_object = FlowBuilder.build_media_object(play_callback, config)
 
         media_objects.append(media_object)
 
     return media_objects
 
 @indirect
-@route(constants.PREFIX + '/play_video')
+@route(PREFIX + '/play_video')
 def PlayVideo(url, live=True, play_list=True):
     if not url:
-        return util.no_contents()
+        return plex_util.no_contents()
     else:
         if str(play_list) == 'True':
             url = Callback(PlayList, url=url)
@@ -548,6 +545,6 @@ def PlayVideo(url, live=True, play_list=True):
 
         return IndirectResponse(MovieObject, key)
 
-@route(constants.PREFIX + '/play_list.m3u8')
+@route(PREFIX + '/play_list.m3u8')
 def PlayList(url):
     return service.get_play_list(url)
