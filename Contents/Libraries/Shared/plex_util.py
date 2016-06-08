@@ -18,9 +18,6 @@ def get_thumb(url, fallback=None):
 def get_language():
     return Prefs['language'].split('/')[1]
 
-def get_elements_per_page():
-    return int(Prefs['elements_per_page'])
-
 def validate_prefs():
     language = get_language()
 

@@ -15,29 +15,29 @@ Container = library_bridge.bridge.objects['Container']
 
 class FlowBuilder():
     @staticmethod
-    def build_media_object(play_callback, config):
-        if config is None:
-            config = {}
+    def build_media_object(play_callback, metadata):
+        if metadata is None:
+            metadata = {}
 
         media_object = MediaObject()
 
-        if 'optimized_for_streaming' in config.keys():
-            media_object.protocol = config['optimized_for_streaming']
+        if 'optimized_for_streaming' in metadata.keys():
+            media_object.protocol = metadata['optimized_for_streaming']
         else:
             media_object.optimized_for_streaming = True
 
-        if 'protocol' in config.keys():
-            media_object.protocol = config['protocol']
+        if 'protocol' in metadata.keys():
+            media_object.protocol = metadata['protocol']
         # else:
         #     media_object.protocol = Protocol.HLS
 
-        if 'container' in config.keys():
-            media_object.container = config['container']
+        if 'container' in metadata.keys():
+            media_object.container = metadata['container']
         # else:
         #     media_object.container = Container.MPEGTS
 
-        if 'video_resolution' in config.keys():
-            media_object.video_resolution = config['video_resolution']
+        if 'video_resolution' in metadata.keys():
+            media_object.video_resolution = metadata['video_resolution']
 
         # if 'width' in config.keys():
         #     media_object.width = config['width']
@@ -45,7 +45,7 @@ class FlowBuilder():
         # if 'height' in config.keys():
         #     media_object.height = config['height']
 
-        part_object = FlowBuilder.build_part_object(config)
+        part_object = FlowBuilder.build_part_object(metadata)
         part_object.key = play_callback
 
         media_object.parts = [part_object]
@@ -75,7 +75,6 @@ class FlowBuilder():
             video_stream.codec = config['video_codec']
         # else:
         #     video_stream.codec = VideoCodec.H264
-
 
         if 'width' in config.keys():
             video_stream.width = config['width']
@@ -117,7 +116,7 @@ class FlowBuilder():
         return metadata_object
 
     @staticmethod
-    def get_plex_config(format):
+    def get_metadata(format):
         container = None
         video_codec = None
         audio_codec = None
