@@ -242,9 +242,7 @@ class GidOnlineService(MwService):
         if movie_url.find('//www.youtube.com') > -1:
             movie_url = movie_url.replace('//', 'http://')
 
-            return self.fetch_document(movie_url)
-        else:
-            return self.fetch_document(movie_url)
+        return self.fetch_document(movie_url, self.get_headers(url))
 
     def get_serial_info(self, document):
         ret = {}
@@ -411,3 +409,10 @@ class GidOnlineService(MwService):
             minutes = int(result[0])
 
         return hours * 60 * 60 + minutes * 60
+
+    @staticmethod
+    def get_headers(referer):
+        return {
+            'User-Agent': 'Plex-User-Agent',
+            "Referer": referer
+        }
