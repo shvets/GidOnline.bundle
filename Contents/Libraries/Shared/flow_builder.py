@@ -67,7 +67,7 @@ class FlowBuilder():
             audio_stream.bitrate = config['bitrate']
 
         if 'duration' in config.keys():
-            audio_stream.bitrate = config['duration']
+            audio_stream.duration = config['duration']
 
         video_stream = VideoStreamObject()
 
