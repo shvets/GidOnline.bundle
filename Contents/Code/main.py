@@ -277,7 +277,7 @@ def HandleSeason(operation=None, container=False, **params):
             'type': 'episode',
             'id': params['id'],
             'serieName': params['serieName'],
-            'name': params['name'],
+            'name': episode_name,
             'thumb': params['thumb'],
             'season': params['season'],
             'episode': episode,
@@ -495,7 +495,7 @@ def MetadataObjectForURL(media_info, url_items, player):
 
     metadata_object.key = Callback(HandleMovie, container=True, **media_info)
 
-    #metadata_object.title = title
+    metadata_object.title = media_info['name']
     metadata_object.rating_key = media_info['rating_key']
     metadata_object.rating = media_info['rating']
     metadata_object.thumb = media_info['thumb']
