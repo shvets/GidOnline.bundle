@@ -267,11 +267,26 @@ class GidOnlineService(MwService):
     def search(self, query, page=1):
         url = self.build_url(self.get_page_url(None, page), s=query)
 
-        document = self.fetch_document(url)
+        response = self.http_request(url)
+        content = response.read()
+        document = self.to_document(content)
 
         movies = self.get_movies(document, url)
 
-        return movies
+        if len(movies['movies']) > 0:
+            return movies
+        else:
+            document = self.fetch_document(response.url)
+
+            media_data = self.get_media_data(document)
+
+            return {'movies': [
+                {
+                    'path': url,
+                    'name': media_data['title'],
+                    'thumb': media_data['thumb']
+                }
+            ]}
 
     def get_movies(self, document, path=None):
         result = {'movies': []}

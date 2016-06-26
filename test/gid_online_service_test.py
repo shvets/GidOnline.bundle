@@ -143,7 +143,7 @@ class GidOnlineServiceTest(unittest.TestCase):
         print(data.group(2))
 
     def test_search(self):
-        query = 'день выборов'
+        query = 'день выборов 2'
 
         result = service.search(query)
 
