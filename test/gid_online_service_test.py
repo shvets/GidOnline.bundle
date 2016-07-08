@@ -12,12 +12,9 @@ from gid_online_service import GidOnlineService
 service = GidOnlineService()
 
 document = service.fetch_document(service.URL)
-all_movies = service.get_movies(document)['movies']
+all_movies = service.get_movies(document)['items']
 
 class GidOnlineServiceTest(unittest.TestCase):
-    def get_document(self):
-        return service.fetch_document(service.URL)
-
     def test_get_genres(self):
         result = service.get_genres(document)
 
@@ -83,7 +80,7 @@ class GidOnlineServiceTest(unittest.TestCase):
         #
         # print(movie_url)
 
-        movie_url = 'http://gidonline.club/2012/10/pobeg-2005/'
+        movie_url = 'http://gidonline.club/2016/05/lyubov-ne-po-razmeru/'
 
         urls = service.retrieve_urls(movie_url)
 
@@ -99,7 +96,8 @@ class GidOnlineServiceTest(unittest.TestCase):
         print(json.dumps(serial_info, indent=4))
 
     def test_get_play_list(self):
-        movie_url = all_movies[0]['path']
+        #movie_url = all_movies[0]['path']
+        movie_url = 'http://gidonline.club/2016/05/lyubov-ne-po-razmeru/'
 
         urls = service.retrieve_urls(movie_url)
 

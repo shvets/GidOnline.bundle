@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 
+import base64
+import json
 import urlparse
 import re
 import operator
 from lxml.etree import tostring
 from operator import itemgetter
 
-from mw_service import MwService
+from http_service import HttpService
 
-class GidOnlineService(MwService):
+class GidOnlineService(HttpService):
     URL = "http://gidonline.club"
+    SESSION_URL = 'http://pandastream.cc/sessions/new'
 
     CYRILLIC_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С',
                         'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я']
@@ -223,10 +226,11 @@ class GidOnlineService(MwService):
 
         data = self.get_session_data(content)
 
+        content_data = self.get_content_data(content)
+
         headers = {
             'X-Requested-With': 'XMLHttpRequest',
-            'Referer': url,
-            'Content-Data': self.get_content_data(content)
+            'Encoding-Pool': content_data
         }
 
         return sorted(self.get_urls(headers, data), key=itemgetter('bandwidth'), reverse=True)
@@ -273,14 +277,14 @@ class GidOnlineService(MwService):
 
         movies = self.get_movies(document, url)
 
-        if len(movies['movies']) > 0:
+        if len(movies['items']) > 0:
             return movies
         else:
             document = self.fetch_document(response.url)
 
             media_data = self.get_media_data(document)
 
-            return {'movies': [
+            return {'items': [
                 {
                     'path': url,
                     'name': media_data['title'],
@@ -289,7 +293,7 @@ class GidOnlineService(MwService):
             ]}
 
     def get_movies(self, document, path=None):
-        result = {'movies': []}
+        result = {'items': []}
 
         links = document.xpath('//div[@id="main"]/div[@id="posts"]/a[@class="mainlink"]')
 
@@ -298,9 +302,9 @@ class GidOnlineService(MwService):
             name = unicode(link.xpath('span')[0].text_content())
             thumb = self.URL + (link.xpath('img')[0].xpath("@src"))[0]
 
-            result['movies'].append({"path": href, "name": name, "thumb": thumb})
+            result['items'].append({"path": href, "name": name, "thumb": thumb})
 
-        if len(result['movies']) > 0:
+        if len(result['items']) > 0:
             result["pagination"] = self.extract_pagination_data(document, path)
 
         return result
@@ -431,3 +435,63 @@ class GidOnlineService(MwService):
             'User-Agent': 'Plex-User-Agent',
             "Referer": referer
         }
+
+    def get_session_data(self, content):
+        path = urlparse.urlparse(self.SESSION_URL).path
+        session_data = re.compile(
+            ('\$\.post\(\'' + path + '\', {((?:.|\n)+)}\)\.success')
+        ).search(content, re.MULTILINE)
+
+        if session_data:
+            session_data = session_data.group(1).replace('condition_detected ? 1 : ', '')
+
+            new_session_data = self.replace_keys('{%s}' % session_data,
+                                                 ['partner', 'd_id', 'video_token', 'content_type', 'access_key', 'cd'])
+
+            return json.loads(new_session_data)
+
+    def get_content_data(self, content):
+        data = re.compile(
+            ('setRequestHeader\|\|([^|]+)')
+        ).search(content, re.MULTILINE)
+
+        if data:
+            return base64.b64encode(data.group(1))
+
+    def get_urls(self, headers, data):
+        urls = []
+
+        try:
+            response = self.http_request(method='POST', url=self.SESSION_URL,
+                                         headers=headers, data=data)
+
+            data = json.loads(response.read())
+
+            manifest_url = data['manifest_m3u8']
+
+            response2 = self.http_request(manifest_url)
+
+            data2 = response2.read()
+
+            lines = data2.splitlines()
+
+            for index, line in enumerate(lines):
+                if line.startswith('#EXTM3U'):
+                    continue
+                elif len(line.strip()) > 0 and not line.startswith('#EXT-X-STREAM-INF'):
+                    data = re.search("#EXT-X-STREAM-INF:RESOLUTION=(\d+)x(\d+),BANDWIDTH=(\d+)", lines[index - 1])
+
+                    urls.append(
+                        {"url": line, "width": int(data.group(1)), "height": int(data.group(2)), "bandwidth": int(data.group(3))})
+        except:
+            pass
+
+        return urls
+
+    def replace_keys(self, s, keys):
+        s = s.replace('\'', '"')
+
+        for key in keys:
+            s = s.replace(key + ':', '"' + key + '":')
+
+        return s

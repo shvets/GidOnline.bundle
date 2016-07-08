@@ -35,7 +35,7 @@ def HandleMovies(title, path=None, page=1):
 
     response = service.get_movies(document, path)
 
-    for movie in response['movies']:
+    for movie in response['items']:
         name = movie['name']
         thumb = movie['thumb']
 
@@ -428,7 +428,7 @@ def BuildSearchYears(oc, document, query):
 def BuildSearchMovies(oc, page, query):
     response = service.search(query=query, page=page)
 
-    for movie in response['movies']:
+    for movie in response['items']:
         name = movie['name']
         thumb = movie['thumb']
 
