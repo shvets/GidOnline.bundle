@@ -335,6 +335,8 @@ def HandleMovie(operation=None, container=False, **params):
 
         url_items = []
 
+        Log(urls)
+
         for url in urls:
             url_items.append(
                 {

@@ -12,10 +12,14 @@ from http_service import HttpService
 
 class GidOnlineService(HttpService):
     URL = "http://gidonline.club"
-    SESSION_URL = 'http://pandastream.cc/sessions/new'
+    SESSION_URL1 = 'http://pandastream.cc/sessions/create_new'
+    SESSION_URL2 = 'http://pandastream.cc/sessions/new'
 
     CYRILLIC_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С',
                         'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я']
+
+    def session_url(self):
+        return self.SESSION_URL1
 
     def get_page_url(self, path, page=1):
         url = self.URL
@@ -246,7 +250,7 @@ class GidOnlineService(HttpService):
         if movie_url.find('//www.youtube.com') > -1:
             movie_url = movie_url.replace('//', 'http://')
 
-        return self.fetch_document(movie_url, self.get_headers(url))
+        return self.fetch_document(movie_url, self.get_headers(gateway_url))
 
     def get_serial_info(self, document):
         ret = {}
@@ -437,7 +441,7 @@ class GidOnlineService(HttpService):
         }
 
     def get_session_data(self, content):
-        path = urlparse.urlparse(self.SESSION_URL).path
+        path = urlparse.urlparse(self.session_url()).path
         session_data = re.compile(
             ('\$\.post\(\'' + path + '\', {((?:.|\n)+)}\)\.success')
         ).search(content, re.MULTILINE)
@@ -462,8 +466,7 @@ class GidOnlineService(HttpService):
         urls = []
 
         try:
-            response = self.http_request(method='POST', url=self.SESSION_URL,
-                                         headers=headers, data=data)
+            response = self.http_request(method='POST', url=self.session_url(), headers=headers, data=data)
 
             data = json.loads(response.read())
 
