@@ -197,27 +197,30 @@ class GidOnlineService(HttpService):
     def get_media_data(self, document):
         data = {}
 
-        block = document.xpath('//div[@id="face"]')[0]
+        media_node = document.xpath('//div[@id="face"]')
 
-        thumb = block.xpath('div/img[@class="t-img"]')[0].get("src")
+        if media_node:
+            block = media_node[0]
 
-        data['thumb'] = self.URL + thumb
+            thumb = block.xpath('div/img[@class="t-img"]')[0].get("src")
 
-        items1 = block.xpath('div/div[@class="t-row"]/div[@class="r-1"]//div[@class="rl-2"]')
-        items2 = block.xpath('div/div[@class="t-row"]/div[@class="r-2"]//div[@class="rl-2"]')
+            data['thumb'] = self.URL + thumb
 
-        data['title'] = items1[0].text_content()
-        data['countries'] = items1[1].text_content().split(',')
-        data['duration'] = self.convert_duration(items1[2].text_content())
-        data['year'] = int(items2[0].text_content())
-        data['tags'] = items2[1].text_content().split(',')
-        data['genres'] = items2[1].text_content().split(',')
+            items1 = block.xpath('div/div[@class="t-row"]/div[@class="r-1"]//div[@class="rl-2"]')
+            items2 = block.xpath('div/div[@class="t-row"]/div[@class="r-2"]//div[@class="rl-2"]')
 
-        description_block = document.xpath('//div[@class="description"]')[0]
+            data['title'] = items1[0].text_content()
+            data['countries'] = items1[1].text_content().split(',')
+            data['duration'] = self.convert_duration(items1[2].text_content())
+            data['year'] = int(items2[0].text_content())
+            data['tags'] = items2[1].text_content().split(',')
+            data['genres'] = items2[1].text_content().split(',')
 
-        data['summary'] = unicode(description_block.xpath('div[@class="infotext"]')[0].text_content())
+            description_block = document.xpath('//div[@class="description"]')[0]
 
-        data['rating'] = float(document.xpath('//div[@class="nvz"]/meta')[1].get('content'))
+            data['summary'] = unicode(description_block.xpath('div[@class="infotext"]')[0].text_content())
+
+            data['rating'] = float(document.xpath('//div[@class="nvz"]/meta')[1].get('content'))
 
         return data
 
@@ -288,13 +291,16 @@ class GidOnlineService(HttpService):
 
             media_data = self.get_media_data(document)
 
-            return {'items': [
-                {
-                    'path': url,
-                    'name': media_data['title'],
-                    'thumb': media_data['thumb']
-                }
-            ]}
+            if 'title' in media_data:
+                return {'items': [
+                    {
+                        'path': url,
+                        'name': media_data['title'],
+                        'thumb': media_data['thumb']
+                    }
+                ]}
+            else:
+                return {'items': []}
 
     def get_movies(self, document, path=None):
         result = {'items': []}
