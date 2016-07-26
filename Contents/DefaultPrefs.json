@@ -8,5 +8,25 @@
             "English/en",
             "Russian/ru"
         ]
+    },
+
+  	{
+		"id": "proxy",
+		"type": "enum",
+		"label": "Proxy (host:port)",
+        "values": [
+          "85.15.121.48:8081"
+        ]
+	},
+
+    {
+        "id": "proxy_type",
+        "type": "enum",
+        "label": "Proxy Type",
+        "default": "http",
+        "values": [
+            "http",
+            "https"
+        ]
     }
 ]

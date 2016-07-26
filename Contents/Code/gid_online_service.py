@@ -276,7 +276,7 @@ class GidOnlineService(HttpService):
         return ret
 
     def search(self, query, page=1):
-        url = self.build_url(self.get_page_url(None, page), s=query)
+        url = self.build_url(self.get_page_url(None, page) + '/', s=query)
 
         response = self.http_request(url)
         content = response.read()

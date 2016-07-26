@@ -10,6 +10,7 @@ import unittest
 from gid_online_service import GidOnlineService
 
 service = GidOnlineService()
+#service.set_proxy("89.108.77.131:80", "http")
 
 document = service.fetch_document(service.URL)
 all_movies = service.get_movies(document)['items']

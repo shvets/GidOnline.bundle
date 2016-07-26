@@ -18,6 +18,12 @@ def get_thumb(url, fallback=None):
 def get_language():
     return Prefs['language'].split('/')[1]
 
+def get_proxy():
+    return Prefs['proxy']
+
+def get_proxy_type():
+    return Prefs['proxy_type']
+
 def validate_prefs():
     language = get_language()
 
