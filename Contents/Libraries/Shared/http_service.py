@@ -9,9 +9,9 @@ except:
     from urllib.request import Request, urlopen
 
 class HttpService():
-    def __init__(self):
-        self.proxy = None
-        self.proxyType = None
+    # def __init__(self):
+    #     self.proxy = None
+    #     self.proxyType = None
 
     def build_url(self, path, **params):
         url = path
@@ -23,9 +23,9 @@ class HttpService():
 
         return url
 
-    def set_proxy(self, proxy, proxyType):
-        self.proxy = proxy
-        self.proxyType = proxyType
+    # def set_proxy(self, proxy, proxyType):
+    #     self.proxy = proxy
+    #     self.proxyType = proxyType
 
     def http_request(self, url, headers=None, data=None, method=None):
         if data is not None:
@@ -34,8 +34,8 @@ class HttpService():
         else:
             request = Request(url)
 
-        if self.proxy is not None:
-            request.set_proxy(self.proxy, self.proxyType)
+        # if self.proxy is not None:
+        #     request.set_proxy(self.proxy, self.proxyType)
 
         if method is not None:
             request.get_method = lambda: method
