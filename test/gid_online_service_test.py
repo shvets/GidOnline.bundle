@@ -81,7 +81,7 @@ class GidOnlineServiceTest(unittest.TestCase):
         #
         # print(movie_url)
 
-        movie_url = 'http://gidonline.club/2016/05/lyubov-ne-po-razmeru/'
+        movie_url = 'http://gidonline.club/2016/08/kapitan-fantastik/'
 
         urls = service.retrieve_urls(movie_url)
 

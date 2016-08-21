@@ -12,7 +12,7 @@ from http_service import HttpService
 
 class GidOnlineService(HttpService):
     URL = "http://gidonline.club"
-    SESSION_URL1 = 'http://pandastream.cc/sessions/create_new'
+    SESSION_URL1 = 'http://pandastream.cc/sessions/new_session'
     SESSION_URL2 = 'http://pandastream.cc/sessions/new'
 
     CYRILLIC_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С',
@@ -447,16 +447,13 @@ class GidOnlineService(HttpService):
         }
 
     def get_session_data(self, content):
-        path = urlparse.urlparse(self.session_url()).path
-        session_data = re.compile(
-            ('\$\.post\(\'' + path + '\', {((?:.|\n)+)}\)\.success')
-        ).search(content, re.MULTILINE)
+        session_data = re.compile('\$\.post\(session_url, \{((?:.|\n)+)}\)\.success').search(content, re.MULTILINE)
 
         if session_data:
             session_data = session_data.group(1).replace('condition_detected ? 1 : ', '')
 
             new_session_data = self.replace_keys('{%s}' % session_data,
-                                                 ['partner', 'd_id', 'video_token', 'content_type', 'access_key', 'cd'])
+                                                 ['partner', 'd_id', 'video_token', 'content_type', 'access_key', 'cd', 'mw_pid', 'mw_did'])
 
             return json.loads(new_session_data)
 
@@ -476,7 +473,7 @@ class GidOnlineService(HttpService):
 
             data = json.loads(response.read())
 
-            manifest_url = data['manifest_m3u8']
+            manifest_url = data['mans']['manifest_m3u8']
 
             response2 = self.http_request(manifest_url)
 
