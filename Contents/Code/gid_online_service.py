@@ -453,7 +453,8 @@ class GidOnlineService(HttpService):
             session_data = session_data.group(1).replace('condition_detected ? 1 : ', '')
 
             new_session_data = self.replace_keys('{%s}' % session_data,
-                                                 ['partner', 'd_id', 'video_token', 'content_type', 'access_key', 'cd', 'mw_pid', 'mw_did'])
+                                                 ['video_token', 'content_type',
+                                                  'access_key', 'mw_pid', 'mw_did', 'ad_attr'])
 
             return json.loads(new_session_data)
 

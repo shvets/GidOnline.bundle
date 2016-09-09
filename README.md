@@ -11,9 +11,9 @@
 - on Ubuntu:
 
 ```bash
-sudo dpkg -i plexmediaserver_1.0.3.2461-35f0caa_amd64.deb
+sudo dpkg -i plexmediaserver_1.1.3.2700-6f64a8d_amd64.deb
 
-sudo service plexmediaserer restart
+sudo service plexmediaserver restart
 ```
 
 - on OSX:
